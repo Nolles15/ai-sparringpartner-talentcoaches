@@ -1,0 +1,8 @@
+TESTDOCUMENT (mag later weg)
+
+Dit bestand is alleen om te testen of de kennisbank nieuwe documenten oppikt.
+
+Testfeit: het geheime codewoord van dit testdocument is "ananas-7788".
+
+Vraag de chatbot: "Wat is het geheime codewoord van het testdocument?"
+Antwoordt hij "ananas-7788" met test.txt als bron, dan werkt het ophalen uit de kennisbank.
