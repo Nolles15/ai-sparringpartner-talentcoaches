@@ -8,6 +8,7 @@ dezelfde knoppen en velden. Bewust GEEN AI en GEEN externe verbindingen — de
 
 Starten:  streamlit run app.py
 Alleen streamlit en pandas nodig.
+
 """
 
 import os
