@@ -43,18 +43,23 @@ def _lees_bestand(pad: Path) -> str:
 
 
 def _lees_documenten():
-    """Geeft een lijst van (bestandsnaam, tekst) voor alle bruikbare documenten."""
+    """Geeft een lijst van (bron, tekst) voor alle bruikbare documenten, ook in submappen."""
     if not KENNISBANK.exists():
         return []
     documenten = []
-    for pad in sorted(KENNISBANK.iterdir()):
+    for pad in sorted(KENNISBANK.rglob("*")):
+        if not pad.is_file():
+            continue
+        if "__MACOSX" in pad.parts:           # Mac-zip-rommel overslaan
+            continue
         if pad.name.startswith(".") or pad.name.lower() == "readme.md":
             continue
         if pad.suffix.lower() not in (".md", ".txt", ".pdf"):
             continue
         tekst = _lees_bestand(pad).strip()
         if tekst:
-            documenten.append((pad.name, tekst))
+            bron = pad.relative_to(KENNISBANK).as_posix()  # bijv. pages/042_...md
+            documenten.append((bron, tekst))
     return documenten
 
 
