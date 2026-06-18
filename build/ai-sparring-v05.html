@@ -1,0 +1,953 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hanzehogeschool Groningen AI Sparringpartner voor Talentcoaches</title>
+  <style>
+    :root {
+      --bg: #f5f4f9;
+      --ink: #2E276C;
+      --muted: #5a5480;
+      --panel: #ffffff;
+      --line: #d8d5e8;
+      --field: #efeef7;
+      --accent: #ED7C00;
+      --accent-dark: #2E276C;
+      --accent-light: #fde8cc;
+      --teal: #0089a8;
+      --teal-light: #cceef5;
+      --mint: #66d4a1;
+      --mint-light: #d4f5e7;
+      --mint-dark: #0d5c3a;
+      --yellow: #fef3c7;
+      --yellow-dark: #92400e;
+      --red: #fee2e2;
+      --red-dark: #991b1b;
+      --shadow: 0 4px 24px rgba(46,39,108,0.10);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #ece9f7 0%, #f5f4f9 55%, #e8f6fa 100%);
+      color: var(--ink);
+      font-family: "Trebuchet MS", "Aptos", sans-serif;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    button, select, textarea, input { font: inherit; }
+    .shell { width: min(1100px, calc(100% - 24px)); margin: 0 auto; padding: 20px 0 48px; }
+    header {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto;
+      gap: 12px;
+      align-items: start;
+      padding: 20px 0 18px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 4px;
+    }
+    .eyebrow { margin: 0 0 6px; color: var(--teal); font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+    h1 { margin: 0; font-size: clamp(1.6rem, 4vw, 3rem); line-height: 1.1; }
+    .header-tools { display: flex; justify-content: flex-end; }
+    .options-menu { position: relative; }
+    .options-toggle {
+      display: inline-grid; gap: 4px; width: 44px; min-height: 44px;
+      padding: 10px 9px; border: 1px solid var(--line); border-radius: 10px;
+      background: rgba(255,255,255,0.9); cursor: pointer; box-shadow: var(--shadow);
+    }
+    .options-toggle span { display: block; height: 2px; background: var(--ink); border-radius: 999px; }
+    .options-toggle::-webkit-details-marker { display: none; }
+    .options-panel {
+      position: absolute; right: 0; top: calc(100% + 8px); width: min(360px, 90vw);
+      padding: 16px; background: #fff; border: 1px solid var(--line);
+      border-radius: 12px; box-shadow: var(--shadow); z-index: 20;
+    }
+    .options-panel h3 { margin: 0 0 10px; }
+    .source-item { border-bottom: 1px solid var(--line); padding: 10px 0; }
+    .source-item:last-child { border-bottom: 0; }
+    .source-item strong { display: block; font-size: 0.9rem; }
+    .source-item small { color: var(--muted); font-size: 0.8rem; }
+    nav {
+      display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0;
+    }
+    nav button {
+      border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+      border-radius: 8px; padding: 9px 14px; cursor: pointer; font-size: 0.92rem;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    nav button[aria-pressed="true"] { background: var(--accent-dark); border-color: var(--accent-dark); color: white; }
+    nav button[data-view="demo"] { background: var(--accent); border-color: var(--accent); color: white; font-weight: 700; }
+    nav button[data-view="demo"][aria-pressed="true"] { background: #c46600; border-color: #c46600; color: white; }
+    .stage { background: rgba(255,255,255,0.88); border: 1px solid var(--line); border-radius: 12px; min-height: 560px; overflow: hidden; box-shadow: var(--shadow); }
+    .view { display: none; padding: 24px; }
+    .view.active { display: block; }
+    h2 { margin: 0 0 10px; font-size: clamp(1.3rem, 2.5vw, 1.9rem); line-height: 1.1; }
+    h3 { margin: 0 0 8px; font-size: 1rem; }
+    p { margin: 0 0 12px; color: var(--muted); }
+    p.dark { color: var(--ink); }
+    .tag {
+      display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 700;
+      margin-right: 6px; margin-bottom: 4px;
+    }
+    .tag-blue { background: var(--teal-light); color: var(--teal); }
+    .tag-green { background: var(--mint-light); color: var(--mint-dark); }
+    .tag-yellow { background: var(--yellow); color: var(--yellow-dark); }
+    .tag-red { background: var(--red); color: var(--red-dark); }
+
+    /* Challenge page */
+    .challenge-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; margin: 18px 0; }
+    .challenge-card { background: var(--field); border-radius: 10px; padding: 16px; }
+    .challenge-card h3 { color: var(--teal); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+    .challenge-card ul { margin: 0; padding-left: 16px; }
+    .challenge-card li { color: var(--ink); font-size: 0.93rem; margin-bottom: 4px; }
+    .persona-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0; }
+    .persona { background: var(--teal-light); border-radius: 10px; padding: 12px 16px; flex: 1 1 160px; }
+    .persona strong { display: block; font-size: 0.95rem; color: var(--teal); }
+    .persona span { font-size: 0.82rem; color: var(--muted); }
+
+    /* Chat demo */
+    .chat-layout { display: grid; grid-template-columns: minmax(0,1fr) 280px; gap: 18px; }
+    .chat-main { display: flex; flex-direction: column; gap: 12px; }
+    .scenario-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+    .scenario-btn {
+      border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+      border-radius: 8px; padding: 7px 12px; cursor: pointer; font-size: 0.86rem;
+    }
+    .scenario-btn.active { background: var(--accent-light); border-color: var(--accent); color: #7a3800; font-weight: 700; }
+    .chat-window {
+      background: var(--field); border: 1px solid var(--line); border-radius: 12px;
+      padding: 16px; display: flex; flex-direction: column; gap: 14px;
+      min-height: 260px; max-height: 520px; overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+    .bubble-coach, .bubble-ai {
+      max-width: 88%; padding: 12px 14px; border-radius: 12px; font-size: 0.93rem; line-height: 1.5;
+    }
+    .bubble-coach {
+      background: var(--accent-dark); color: white; align-self: flex-end;
+      border-bottom-right-radius: 3px;
+    }
+    .bubble-ai {
+      background: white; border: 1px solid var(--line); align-self: flex-start;
+      border-bottom-left-radius: 3px; color: var(--ink);
+    }
+    .bubble-ai-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
+    .bubble-ai p { color: var(--ink); margin: 0 0 8px; }
+    .bubble-ai p:last-child { margin-bottom: 0; }
+    .bubble-ai .disclaimer {
+      margin-top: 10px; padding: 8px 10px; background: var(--yellow); border-radius: 7px;
+      font-size: 0.8rem; color: var(--yellow-dark);
+    }
+    .bubble-ai .followup {
+      margin-top: 10px; padding: 8px 10px; background: var(--teal-light); border-radius: 7px;
+      font-size: 0.82rem; color: var(--teal);
+    }
+    .chat-input-row { display: flex; gap: 8px; align-items: flex-end; }
+    .chat-input-row textarea {
+      flex: 1; border: 1px solid var(--line); border-radius: 10px;
+      background: white; color: var(--ink); padding: 10px 12px;
+      resize: none; min-height: 64px;
+    }
+    .chat-input-row .send-btn {
+      background: var(--accent); color: white; border: none; border-radius: 10px;
+      padding: 10px 18px; cursor: pointer; font-weight: 700; align-self: flex-end;
+    }
+    .reply-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .reply-btn {
+      border: 1px solid var(--accent); background: var(--accent-light); color: #7a3800;
+      border-radius: 20px; padding: 8px 16px; cursor: pointer; font-size: 0.88rem;
+      transition: background 0.15s;
+    }
+    .reply-btn:hover { background: var(--accent); color: white; }
+    .reset-btn {
+      border: 1px solid var(--line); background: var(--field); color: var(--muted);
+      border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 0.82rem;
+    }
+    .voice-row { display: flex; gap: 8px; }
+    .voice-btn {
+      border: 1px solid var(--line); background: var(--field); border-radius: 8px;
+      padding: 7px 14px; cursor: not-allowed; color: var(--muted); font-size: 0.82rem;
+    }
+    .chat-sidebar { display: flex; flex-direction: column; gap: 12px; }
+    .evidence-panel {
+      background: var(--field); border: 1px solid var(--line); border-radius: 12px; padding: 14px;
+    }
+    .evidence-panel h3 { font-size: 0.88rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+    .evidence-item {
+      border-bottom: 1px solid var(--line); padding: 8px 0; font-size: 0.82rem; color: var(--ink); line-height: 1.45;
+    }
+    .evidence-item:last-child { border-bottom: 0; }
+
+    /* Assumptions */
+    .assumption-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; margin: 16px 0; }
+    .assumption-card {
+      border: 1px solid var(--line); border-radius: 10px; padding: 14px; background: white;
+    }
+    .assumption-card h3 { font-size: 0.85rem; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; }
+    .assumption-list { list-style: none; padding: 0; margin: 0; }
+    .assumption-list li { padding: 6px 0; border-bottom: 1px solid var(--field); font-size: 0.9rem; }
+    .assumption-list li:last-child { border-bottom: 0; }
+    .assumption-list li::before { content: "→ "; color: var(--teal); font-weight: 700; }
+
+    /* Risks */
+    .risk-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; margin: 16px 0; }
+    .risk-card { border-left: 4px solid var(--teal); border-radius: 0 10px 10px 0; padding: 14px; background: white; }
+    .risk-card.red { border-color: #dc2626; }
+    .risk-card.yellow { border-color: var(--accent); }
+    .risk-card.blue { border-color: var(--teal); }
+    .risk-card h3 { font-size: 0.9rem; margin-bottom: 6px; }
+    .risk-list { list-style: none; padding: 0; margin: 0; font-size: 0.88rem; color: var(--muted); }
+    .risk-list li { padding: 4px 0; }
+
+    /* Next steps */
+    .roadmap { display: grid; gap: 12px; counter-reset: step; }
+    .roadmap article {
+      position: relative; padding: 14px 14px 14px 52px;
+      border: 1px solid var(--line); border-radius: 10px; background: white;
+    }
+    .roadmap article::before {
+      counter-increment: step; content: counter(step);
+      position: absolute; left: 12px; top: 14px;
+      width: 28px; height: 28px; display: grid; place-items: center;
+      border-radius: 999px; background: var(--mint-light);
+      color: var(--mint-dark); font-weight: 800;
+    }
+    .roadmap article h3 { color: var(--accent-dark); }
+
+    /* Feedback */
+    .feedback-section { background: var(--field); border-radius: 12px; padding: 20px; margin-top: 20px; }
+    .feedback-section h3 { margin-bottom: 12px; }
+    .feedback-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .feedback-row button {
+      border: 1px solid var(--line); background: white; border-radius: 8px;
+      padding: 8px 16px; cursor: pointer;
+    }
+    .feedback-row button.selected { background: var(--mint-light); border-color: var(--mint); color: var(--mint-dark); font-weight: 700; }
+    .feedback-note { width: 100%; border: 1px solid var(--line); border-radius: 8px; background: white; padding: 10px; resize: vertical; min-height: 72px; }
+    .feedback-status { min-height: 22px; color: var(--teal); font-weight: 700; margin-top: 8px; }
+
+    /* Mock watermark */
+    .mock-badge {
+      display: inline-block; background: var(--yellow); color: var(--yellow-dark);
+      font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+      margin-left: 8px; vertical-align: middle;
+    }
+
+    @media (max-width: 750px) {
+      .chat-layout { grid-template-columns: 1fr; }
+      .chat-sidebar { order: -1; }
+      .challenge-grid, .assumption-grid, .risk-grid { grid-template-columns: 1fr; }
+      header { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div>
+        <p class="eyebrow" id="eyebrow"></p>
+        <h1 id="title"></h1>
+      </div>
+      <div class="header-tools">
+        <details class="options-menu">
+          <summary class="options-toggle" aria-label="Opties en bronnen">
+            <span></span><span></span><span></span>
+          </summary>
+          <div class="options-panel">
+            <h3>Bronnen</h3>
+            <p>Gegenereerd vanuit een workshopcanvas. Inhoud is gemockt — alle responsen zijn voorbeelden, geen live AI-uitvoer.</p>
+            <div id="source-list"></div>
+          </div>
+        </details>
+      </div>
+    </header>
+
+    <nav aria-label="Prototype-onderdelen">
+      <button type="button" data-view="challenge" aria-pressed="true">Uitdaging</button>
+      <button type="button" data-view="assumptions" aria-pressed="false">Aannames</button>
+      <button type="button" data-view="demo" aria-pressed="false">Interactieve Demo</button>
+      <button type="button" data-view="risks" aria-pressed="false">Wat kan er misgaan?</button>
+      <button type="button" data-view="next" aria-pressed="false">Next Steps</button>
+    </nav>
+
+    <section class="stage">
+      <section class="view active" id="challenge"></section>
+      <section class="view" id="assumptions"></section>
+      <section class="view" id="demo"></section>
+      <section class="view" id="risks"></section>
+      <section class="view" id="next"></section>
+    </section>
+  </main>
+
+  <script id="seed" type="application/json">{
+  "projectName": "AI Sparringpartner voor Talentcoaches",
+  "organisation": "Hanzehogeschool Groningen",
+  "date": "juni 2026",
+  "prototypeType": "chat",
+  "logoDataUri": "data:image/png;base64,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",
+  "skill": {
+    "name": "workshop-html-prototype",
+    "description": "Use when asked to create, refactor, or review a standalone HTML concept prototype for an AI Impact Lab or rapid-prototyping workshop. Best for turning use-case canvases, agent-docs, user stories, legacy-code references, and example data into a mobile-friendly, shareable, no-build HTML demo that communicates the problem, users, intended workflow, mocked interaction, evidence, assumptions, feedback, and next steps without requiring a backend or framework."
+  },
+  "sections": [
+    {
+      "key": "gebruikerContext",
+      "label": "Gebruikerscontext",
+      "items": [
+        "Talentcoaches bij RTC's, bonden en opleidingsteams die dagelijks werken met jonge sporters (tot 18 jaar). Coaches werken zowel op locatie (sporthal, buitenveld) als thuis of op kantoor. Ze hebben weinig tijd en willen snel antwoord op trainings- en begeleidingsvragen."
+      ],
+      "raw": "Talentcoaches bij RTC's, bonden en opleidingsteams die dagelijks werken met jonge sporters (tot 18 jaar). Coaches werken zowel op locatie (sporthal, buitenveld) als thuis of op kantoor. Ze hebben weinig tijd en willen snel antwoord op trainings- en begeleidingsvragen."
+    },
+    {
+      "key": "takenDoelen",
+      "label": "Taken en doelen",
+      "items": [
+        "Snel een second opinion krijgen op een trainings- of begeleidingsbeslissing",
+        "Doordenkscenario's voorbereiden voor gesprekken met sporters of ouders",
+        "Kennis over monitoring, belasting en feedbackstijlen ophalen",
+        "Observaties bijhouden en terugkoppelen in het begeleidingsproces"
+      ],
+      "raw": "- Snel een second opinion krijgen op een trainings- of begeleidingsbeslissing\n- Doordenkscenario's voorbereiden voor gesprekken met sporters of ouders\n- Kennis over monitoring, belasting en feedbackstijlen ophalen\n- Observaties bijhouden en terugkoppelen in het begeleidingsproces"
+    },
+    {
+      "key": "huidigProces",
+      "label": "Huidig proces",
+      "items": [
+        "Coaches overleggen ad hoc met collega's of leidinggevenden",
+        "Kennis wordt opgedaan via opleidingen, maar snel vergeten",
+        "Platforms zoals Smartabase bevatten data maar bieden geen coachingadvies",
+        "Er is weinig structurele ondersteuning buiten vaste overlegmomenten"
+      ],
+      "raw": "- Coaches overleggen ad hoc met collega's of leidinggevenden\n- Kennis wordt opgedaan via opleidingen, maar snel vergeten\n- Platforms zoals Smartabase bevatten data maar bieden geen coachingadvies\n- Er is weinig structurele ondersteuning buiten vaste overlegmomenten"
+    },
+    {
+      "key": "pijnpunten",
+      "label": "Pijnpunten",
+      "items": [
+        "Coaches missen een klankbord buiten kantooruren",
+        "Sportwetenschap is moeilijk toegankelijk voor drukbezette coaches",
+        "Kennis over vrouwelijke sporters en jongeren (<18) is dunner en minder overdraagbaar",
+        "Privacy-angst blokkeert digitale tools bij sommige coaches"
+      ],
+      "raw": "- Coaches missen een klankbord buiten kantooruren\n- Sportwetenschap is moeilijk toegankelijk voor drukbezette coaches\n- Kennis over vrouwelijke sporters en jongeren (<18) is dunner en minder overdraagbaar\n- Privacy-angst blokkeert digitale tools bij sommige coaches"
+    },
+    {
+      "key": "aiMogelijkheden",
+      "label": "AI-kansen",
+      "items": [
+        "Gesprekspartner die evidence-based overwegingen geeft zonder beslissing te nemen",
+        "Vragen stellen om het denkproces van de coach te scherpen",
+        "Bronnen benoemen zodat de coach zelf kan doorlezen",
+        "Werkt 24/7 via smartphone of laptop met spraakondersteuning",
+        "Vervolgadvies geven bij een signaal dat de coach zelf al in zijn monitoring heeft gezien (concrete volgende stap, geen automatische signalering)"
+      ],
+      "raw": "- Gesprekspartner die evidence-based overwegingen geeft zonder beslissing te nemen\n- Vragen stellen om het denkproces van de coach te scherpen\n- Bronnen benoemen zodat de coach zelf kan doorlezen\n- Werkt 24/7 via smartphone of laptop met spraakondersteuning\n- Vervolgadvies geven bij een signaal dat de coach zelf al in zijn monitoring heeft gezien (concrete volgende stap, geen automatische signalering)"
+    },
+    {
+      "key": "databronnen",
+      "label": "Databronnen",
+      "items": [
+        "Gecureerde kennislaag: monitoring-methodologie, compliance, feedbackstrategieën, periodisering, coachpedagogie",
+        "WP2-veldonderzoek: interviews coaches en experts 2024-2026",
+        "Sportmonitor op Maat / Coach in Control onderzoekstraditie Hanze",
+        "Wetenschappelijke literatuur: Saw et al. 2017, SRPE, TQR, wellness-schalen"
+      ],
+      "raw": "- Gecureerde kennislaag: monitoring-methodologie, compliance, feedbackstrategieën, periodisering, coachpedagogie\n- WP2-veldonderzoek: interviews coaches en experts 2024-2026\n- Sportmonitor op Maat / Coach in Control onderzoekstraditie Hanze\n- Wetenschappelijke literatuur: Saw et al. 2017, SRPE, TQR, wellness-schalen"
+    },
+    {
+      "key": "datakwaliteit",
+      "label": "Datakwaliteit",
+      "items": [
+        "Kennislaag is bewust afgebakend en gedocumenteerd",
+        "Bronnen zijn geannoteerd op doelgroep (leeftijd, geslacht)",
+        "Bewijs voor vrouwelijke sporters en jongeren apart gemarkeerd",
+        "Coaches voeren geen identificeerbare persoonsgegevens in"
+      ],
+      "raw": "- Kennislaag is bewust afgebakend en gedocumenteerd\n- Bronnen zijn geannoteerd op doelgroep (leeftijd, geslacht)\n- Bewijs voor vrouwelijke sporters en jongeren apart gemarkeerd\n- Coaches voeren geen identificeerbare persoonsgegevens in"
+    },
+    {
+      "key": "productDienst",
+      "label": "Productvorm",
+      "items": [
+        "Chatinterface (tekst + spraak) voor coaches",
+        "Werkt op smartphone en laptop",
+        "Fase 1 MVP: conversatie + kennislaag",
+        "Fase 2 (later): data-integratie met monitoringplatformen"
+      ],
+      "raw": "- Chatinterface (tekst + spraak) voor coaches\n- Werkt op smartphone en laptop\n- Fase 1 MVP: conversatie + kennislaag\n- Fase 2 (later): data-integratie met monitoringplatformen"
+    },
+    {
+      "key": "waardecreatie",
+      "label": "Waardecreatie",
+      "items": [
+        "Coach krijgt 24/7 een sparringpartner",
+        "Beslissingen worden meer onderbouwd zonder meer tijd te kosten",
+        "Vertrouwen groeit doordat beperkingen zichtbaar zijn",
+        "Kennis blijft actueel zonder verplichte bijscholing"
+      ],
+      "raw": "- Coach krijgt 24/7 een sparringpartner\n- Beslissingen worden meer onderbouwd zonder meer tijd te kosten\n- Vertrouwen groeit doordat beperkingen zichtbaar zijn\n- Kennis blijft actueel zonder verplichte bijscholing"
+    },
+    {
+      "key": "ethiekPrivacy",
+      "label": "Ethiek en privacy",
+      "items": [
+        "Hosting op AVG-conform platform zonder modeltraining op input",
+        "Coaches worden geadviseerd om geen namen of medische gegevens in te voeren",
+        "Sporters worden via coach en organisatie geïnformeerd",
+        "Privacy-toets DPO is vereist vóór pilot"
+      ],
+      "raw": "- Hosting op AVG-conform platform zonder modeltraining op input\n- Coaches worden geadviseerd om geen namen of medische gegevens in te voeren\n- Sporters worden via coach en organisatie geïnformeerd\n- Privacy-toets DPO is vereist vóór pilot"
+    },
+    {
+      "key": "kritischeAannames",
+      "label": "Kritische aannames",
+      "items": [
+        "Coaches vertrouwen een AI-sparringpartner genoeg om het echt te gebruiken",
+        "De kennislaag is breed genoeg voor de meest gestelde coachingvragen",
+        "Coaches begrijpen dat het systeem geen diagnoses stelt",
+        "Spraakbediening werkt betrouwbaar op locatie",
+        "Coaches gebruiken anonieme omschrijvingen ipv namen",
+        "(Iteratie 2, ontkracht) Coaches missen vooral proactieve signalering vanuit monitoringdata — in werkelijkheid signaleert hun systeem al; de behoefte zit in concreet vervolgadvies bij een zelf-aangedragen signaal",
+        "(Iteratie 2, bevestigd) Coaches verwachten dat het systeem een sporter 'een beetje kent' om context niet elke sessie te herhalen — generaliseert over meerdere coaches"
+      ],
+      "raw": "- Coaches vertrouwen een AI-sparringpartner genoeg om het echt te gebruiken\n- De kennislaag is breed genoeg voor de meest gestelde coachingvragen\n- Coaches begrijpen dat het systeem geen diagnoses stelt\n- Spraakbediening werkt betrouwbaar op locatie\n- Coaches gebruiken anonieme omschrijvingen ipv namen\n- (Iteratie 2, ontkracht) Coaches missen vooral proactieve signalering vanuit monitoringdata — in werkelijkheid signaleert hun systeem al; de behoefte zit in concreet vervolgadvies bij een zelf-aangedragen signaal\n- (Iteratie 2, bevestigd) Coaches verwachten dat het systeem een sporter 'een beetje kent' om context niet elke sessie te herhalen — generaliseert over meerdere coaches"
+    },
+    {
+      "key": "succesMetrics",
+      "label": "Succesmetingen",
+      "items": [
+        "5-10 pilotcoaches gebruiken de tool 8-12 weken actief",
+        "Coach geeft aan dat de kwaliteit van zijn beslissingen is verbeterd",
+        "Geen gevallen van schadelijk advies dat door coach is opgevolgd",
+        "NPS > 7 na pilotperiode"
+      ],
+      "raw": "- 5-10 pilotcoaches gebruiken de tool 8-12 weken actief\n- Coach geeft aan dat de kwaliteit van zijn beslissingen is verbeterd\n- Geen gevallen van schadelijk advies dat door coach is opgevolgd\n- NPS > 7 na pilotperiode"
+    },
+    {
+      "key": "tijdlijnTeam",
+      "label": "Tijdlijn en team",
+      "items": [
+        "Week 1-3: kennislaag opbouwen en cureren",
+        "Week 4-6: prototype bouwen en testen met coaches",
+        "Week 7-10: pilot met 5-10 talentcoaches",
+        "Week 11-12: evaluatie, doorontwikkeling en besluit Fase 2"
+      ],
+      "raw": "- Week 1-3: kennislaag opbouwen en cureren\n- Week 4-6: prototype bouwen en testen met coaches\n- Week 7-10: pilot met 5-10 talentcoaches\n- Week 11-12: evaluatie, doorontwikkeling en besluit Fase 2"
+    }
+  ],
+  "dashboardCards": [
+    {
+      "id": "planning",
+      "title": "Planning groepen",
+      "question": "Welke toernooien, events, testdagen en vakanties moeten zichtbaar zijn?",
+      "signal": "Jaarplanning Groep 1/2: conceptueel volledig, overige groepen nog wisselend.",
+      "mockScore": 68,
+      "primaryAction": "Maak een gedeeld kwartaaloverzicht met ontbrekende invoer per groep.",
+      "evidence": [
+        "Snel een second opinion krijgen op een trainings- of begeleidingsbeslissing",
+        "Doordenkscenario's voorbereiden voor gesprekken met sporters of ouders",
+        "Kennis over monitoring, belasting en feedbackstijlen ophalen",
+        "Coaches missen een klankbord buiten kantooruren"
+      ]
+    },
+    {
+      "id": "presence",
+      "title": "Aanwezigheid spelers & staf",
+      "question": "Wie is wanneer op het NTC of extern aanwezig?",
+      "signal": "Aanwezigheid staf wordt nog niet door iedereen bijgehouden.",
+      "mockScore": 44,
+      "primaryAction": "Start met weekniveau: staf, spelers, locatie en verantwoordelijke eigenaar.",
+      "evidence": [
+        "Sportwetenschap is moeilijk toegankelijk voor drukbezette coaches",
+        "Kennis over vrouwelijke sporters en jongeren (<18) is dunner en minder overdraagbaar",
+        "Kennislaag is bewust afgebakend en gedocumenteerd",
+        "Bronnen zijn geannoteerd op doelgroep (leeftijd, geslacht)"
+      ]
+    },
+    {
+      "id": "courts",
+      "title": "Baanplanning NTC",
+      "question": "Welke banen zijn bezet, vrij of mogelijk verhuurbaar?",
+      "signal": "Baanplanning moet gekoppeld worden aan het bestaande afhangbord.",
+      "mockScore": 57,
+      "primaryAction": "Toon per week baanbezetting naast trainingsweken en verwachte aanwezigheid.",
+      "evidence": [
+        "Kennis over monitoring, belasting en feedbackstijlen ophalen",
+        "Observaties bijhouden en terugkoppelen in het begeleidingsproces",
+        "Bewijs voor vrouwelijke sporters en jongeren apart gemarkeerd",
+        "Coaches voeren geen identificeerbare persoonsgegevens in"
+      ]
+    }
+  ],
+  "chatScenarios": [
+    {
+      "id": "belasting",
+      "label": "Trainingsbelasting na ziekte",
+      "question": "Mijn U17-speler was 5 dagen ziek met een luchtweginfectie en wil graag maandag alweer meetrainen. Hoe pak ik dit aan?",
+      "firstResponse": "Na een luchtweginfectie is het belangrijk om niet te snel te hervatten. Een vuistregel: de opbouwperiode is minimaal even lang als de uitvalperiode — dus bij 5 dagen ziekte reken je op zo'n 5 dagen stapsgewijze opbouw.\n\nVoordat ik verder ga: was er ook sprake van koorts of kortademigheid?",
+      "coachReplies": [
+        {
+          "label": "Ja, hij had koorts",
+          "response": "Dan is extra voorzichtigheid op zijn plaats. Bij koorts is de belastbaarheid langer verlaagd dan bij een 'gewone' verkoudheid, en bij jongeren zie je dat ze zichzelf soms beter voelen dan ze zijn.\n\nMijn advies: begin maandag niet met groepstraining maar met een individuele check-in — kort, laag intensief. Vraag de speler een TQR-score in te vullen en beoordeel pas na 2-3 dagen of hij klaar is voor normale belasting. Als er twijfel is over de longen: even langs de sportarts.\n\nKanttekening: dit zijn algemene richtlijnen. Bij koorts in de voorgeschiedenis is medische vrijgave echt verstandig."
+        },
+        {
+          "label": "Nee, alleen verkoudheid",
+          "response": "Oké, dat geeft wat meer ruimte. Bij een luchtweginfectie zonder koorts herstel je over het algemeen sneller, maar de belastbaarheid is de eerste dagen nog steeds verlaagd.\n\nPraktisch plan voor maandag: laat hem meetrainen op lage intensiteit — teamcontact ja, intensieve drills nog niet. Vraag hem vooraf en achteraf een TQR-score in te vullen. Ligt die maandag boven de 14, dan kun je dinsdag al meer opbouwen. Ligt hij lager: een dag extra rust inlassen.\n\nHet goede nieuws: als hij zich maandag goed voelt en de scores bevestigen dat, zit hij donderdag waarschijnlijk gewoon weer op vollast."
+        },
+        {
+          "label": "Weet ik niet precies",
+          "response": "Dat begrijp ik — je ziet de speler niet thuis. In dat geval is het verstandig om hem zelf te vragen hoe het gegaan is: had hij koorts? Kortademigheid? Moest hij echt in bed blijven?\n\nOp basis van zijn eigen inschatting én een TQR-score op maandagochtend kun je een goede beslissing nemen. Regel van thumb: als hij twijfelt of hij fit genoeg is, is hij dat nog niet. Laat hem die maandag laag intensief meedoen en beoordeel dan opnieuw.\n\nWil je een paar vragen die je hem kunt stellen om snel een beeld te krijgen?"
+        }
+      ],
+      "evidence": [
+        "Saw et al. (2017) — Subjectief welzijn als indicator voor trainingsrespons bij jonge sporters",
+        "TQR-schaal (Total Quality Recovery) — dagelijkse zelfscore als vroeg signaal van belastbaarheid",
+        "Principe belasting-belastbaarheid — opbouwtijd na ziekte is minimaal gelijk aan uitvaltijd"
+      ],
+      "disclaimer": "Dit zijn algemene overwegingen, geen medisch advies. Bij twijfel altijd een sportarts raadplegen."
+    },
+    {
+      "id": "compliance",
+      "label": "Compliance monitoring vragenlijsten",
+      "question": "Drie spelers vullen hun welzijnsvragenlijst al weken niet in. Hoe zorg ik dat ze het gaan doen zonder dat ik een politieagent word?",
+      "firstResponse": "Dit is een veelgehoorde spanning: de coach wil data, de speler ervaart het als een verplichting. De oplossing zit bijna altijd in het 'waarom' — niet in meer druk zetten.\n\nEen vraag eerst: weet je al waarom ze het niet invullen? Is het vergeten, weerstand, of vinden ze het gewoon zinloos?",
+      "coachReplies": [
+        {
+          "label": "Ze vergeten het gewoon",
+          "response": "Dan is de oplossing relatief eenvoudig: maak het makkelijker én zichtbaarder. Een vaste plek in de routine werkt beter dan een losse herinnering.\n\nPraktische opties: koppel het aan iets wat ze altijd doen — kleedkamer, warming-up, einde training. Zet een gezamenlijk moment in de groep ('we vullen het nu even in'). Of vraag één teamlid om de anderen even te herinneren — dat voelt minder als controle van de coach.\n\nEén ding dat helpt: laat ze merken dat jij de scores ook echt gebruikt. Als ze zien dat jij de training aanpast op basis van hun input, stijgt de motivatie om het bij te houden."
+        },
+        {
+          "label": "Ze zien het nut niet",
+          "response": "Dan moet je eerst de 'waarom' invullen voordat je vraagt om het gedrag. Spelers die het nut niet zien, vullen het in als plicht — en die plichten verdwijnen als eerste onder druk.\n\nEen aanpak die werkt: geef één keer concreet terug wat je met de data hebt gedaan. 'Vorige week zag ik dat jullie vermoeidheidsscore hoog was, daarom heb ik de intensiteit teruggeschroefd.' Die koppeling maakt het instrument van jou ook hun instrument.\n\nAls je dat een paar keer doet, verandert het verhaal van 'coach wil data' naar 'dit helpt mij ook'."
+        },
+        {
+          "label": "Ze hebben weerstand",
+          "response": "Weerstand vraagt om een ander gesprek dan vergeten of desinteresse. Hier zit vaak iets onder: gevoel van controle, onveiligheid om eerlijk te zijn, of wantrouwen over wat er met de data gebeurt.\n\nEen goed startpunt: bespreek het direct maar zonder aanklacht. 'Ik merk dat je het al een paar weken niet invult — is er iets wat je tegenhoudt?' Dat opent de deur zonder dat je een politieagent bent.\n\nKanttekening: als de weerstand dieper zit (de speler vertrouwt jou of het systeem niet), lost meer druk niets op. Dan is de vragenlijst een symptoom, niet het probleem."
+        }
+      ],
+      "evidence": [
+        "Coach in Control (Hanze/Sportinnovator) — autonomie en eigenaarschap bij jonge sporters",
+        "Intrinsieke motivatie en monitoring-compliance — Ntoumanis et al. 2021",
+        "Peer accountability — sociaal wenselijkheidseffect in groepen als hefboom voor gedragsverandering"
+      ],
+      "disclaimer": "De effectiefste aanpak hangt sterk af van de specifieke sporters en context. Wat hier werkt, hoeft elders niet te werken."
+    },
+    {
+      "id": "feedback",
+      "label": "Feedbackgesprek na tegenvallend toernooi",
+      "question": "Na een tegenvallend toernooi wil ik een feedbackgesprek houden met een gevoelige 16-jarige. Wat moet ik in gedachten houden?",
+      "firstResponse": "Een feedbackgesprek na een teleurstelling vraagt allereerst om goede timing. Onderzoek naar emotieregulatie bij adolescenten laat zien dat de eerste 24-48 uur na een slechte prestatie zelden het juiste moment zijn voor analyse — de speler is nog aan het verwerken.\n\nHoe lang geleden was het toernooi?",
+      "coachReplies": [
+        {
+          "label": "Gisteren pas",
+          "response": "Dan is mijn advies: wacht nog even. Niet met het gesprek zelf, maar met de inhoudelijke analyse.\n\nWat je vandaag wél kunt doen: een kort check-in gesprek. Geen prestatie-analyse, alleen: 'Hoe gaat het met je?' Dat laat zien dat je er bent zonder meteen te pushen. Spelers die zich gezien voelen, zijn morgen of overmorgen veel ontvankelijker voor feedback.\n\nPlan het echte gesprek voor over 2-3 dagen. Zorg dan dat jij ook wat rustiger bent — coaches analyseren soms het scherpst direct na een wedstrijd, maar de speler is daar nog niet klaar voor."
+        },
+        {
+          "label": "Een paar dagen geleden",
+          "response": "Dan is het goede moment aangebroken. Een paar dingen om in gedachten te houden:\n\nBegin met luisteren, niet met jouw analyse. Vraag de speler eerst zelf: 'Wat vond jij er goed aan gaan? Wat vond je lastig?' Luister zonder te corrigeren. Pas daarna voeg jij jouw observatie toe als aanvulling — niet als correctie.\n\nFocus op procesgedrag, niet op uitkomst. 'Je bent drie keer die moeilijke bal toch blijven spelen' is concreter en aanstuurbaar dan 'je presteerde niet goed genoeg'.\n\nKanttekening: de literatuur over feedbackstijlen is grotendeels onderzocht bij mannelijke sporters. Bij meisjes speelt relatiegerichtheid en gevoeligheid voor sociale vergelijking vaak sterker mee — houd daar rekening mee als dat relevant is."
+        },
+        {
+          "label": "Al een week geleden",
+          "response": "Dan is de emotionele verwerking waarschijnlijk al een stuk verder, maar er is ook een risico: als je er nu pas op terugkomt, kan het voelen als 'oud nieuws oprakelen'.\n\nMaak de ingang concreet en vooruitgericht: 'Ik wil even terugkijken op vorige week, niet om te herhalen wat er misging, maar om te bepalen wat we ervan meenemen naar de volgende keer.'\n\nDat frame — vooruit kijken, niet terugkomen — werkt goed bij gevoelige sporters. Het maakt duidelijk dat het gesprek over groei gaat, niet over afrekening."
+        }
+      ],
+      "evidence": [
+        "Coachpedagogie — autonomie-ondersteunend klimaat (Mageau & Vallerand, 2003)",
+        "Emotieregulatie bij adolescenten — 48-uurs reflectievenster na teleurstelling",
+        "Bias-kanttekening: feedbackliteratuur is sterk gericht op mannelijke topsporters — overdraagbaarheid naar meisjes <18 is beperkt onderzocht"
+      ],
+      "disclaimer": "Dit zijn algemene coachingprincipes. Elke speler is anders. Vertrouw op je eigen inschatting van de relatie."
+    },
+    {
+      "id": "signaal",
+      "label": "Vervolgstap bij een dalende TQR-score",
+      "question": "Ik zie in mijn monitoring dat de TQR-score van een van mijn sporters al twee weken daalt. Wat doe ik hiermee?",
+      "firstResponse": "Een TQR die twee weken op rij daalt, is een duidelijk signaal — dat heb je dus al goed gezien. Voordat ik een concrete vervolgstap voorstel: heeft deze sporter daarnaast ook fysieke klachten, of zie je vooral dat hij minder fit/fris overkomt?",
+      "coachReplies": [
+        {
+          "label": "Klachtenvrij, lijkt vooral moe",
+          "response": "Dan past dit bij cumulatieve vermoeidheid zonder rode vlag richting medisch — een veelvoorkomend en goed te managen patroon.\n\nMijn advies voor de komende week: bouw het trainingsvolume met 20-30% terug, houd de intensiteit in de korte prikkels wel overeind. Plan daarnaast een kort 1-op-1 gesprek (10 minuten is genoeg) om te horen hoe slaap en belasting buiten de sport eruitzien — vaak verklaart dat een deel van de daling.\n\nConcreet vervolg: blijf de TQR dagelijks volgen. Herstelt de score binnen 4-5 dagen, dan kun je het volume weer stapsgewijs ophogen. Blijft hij laag, plan dan een uitgebreider gesprek — dan is het tijd om verder te kijken dan trainingsbelasting alleen."
+        },
+        {
+          "label": "Hij heeft ook lichte pijnklachten",
+          "response": "Dat verandert het beeld — een dalende TQR gecombineerd met pijnklachten is een combinatie die ik niet zomaar als 'gewone vermoeidheid' zou afdoen.\n\nEerst het afwegingskader: hoe lang heeft hij deze klachten al, en zijn ze tijdens trainen, erna, of ook in rust? Als de pijn aanhoudt (>1-2 weken), in rust aanwezig is, of erger wordt bij belasting, is dat een reden om niet af te wachten.\n\nConcreet advies: bouw het volume nu al terug zoals bij vermoeidheid, maar plan dít keer ook een check bij de fysiotherapeut binnen de komende week — niet als alarm, maar als preventieve stap. Zo voorkom je dat een klein signaal een langere uitvalperiode wordt."
+        },
+        {
+          "label": "Ik weet het niet, ik zie het alleen in de cijfers",
+          "response": "Logisch — de cijfers geven je het signaal, maar niet de context erachter. Dat is precies waar het volgende gesprek om gaat.\n\nConcreet advies: plan deze week een kort individueel gesprek met de sporter, met de TQR-grafiek erbij. Vraag simpelweg: 'Ik zie dat je herstelscore al twee weken daalt — herken je dat, en heb je een idee waar dat door komt?' Dat opent vaak meteen de context (slaap, school, blessuregevoel, motivatie).\n\nOp basis van wat daaruit komt, kun je dan gericht bijsturen: trainingsvolume aanpassen bij vermoeidheid, of doorverwijzen bij fysieke klachten. Zonder dat gesprek blijf je gokken op basis van alleen het cijfer."
+        }
+      ],
+      "evidence": [
+        "TQR-schaal (Total Quality Recovery) — twee weken dalende trend als betrouwbaar signaal voor cumulatieve vermoeidheid",
+        "Rode-vlaggen-redenering — onderscheid tussen 'gesprek aangaan', 'training aanpassen' en 'doorverwijzen'",
+        "Medische drempelkennis — afwegingskader bij pijnklachten in combinatie met dalende herstelscores"
+      ],
+      "disclaimer": "Dit zijn algemene overwegingen op basis van het signaal dat je zelf hebt waargenomen — geen vervanging voor een gesprek met de sporter of, bij twijfel, een sportarts."
+    },
+    {
+      "id": "tapering",
+      "label": "Tapering voor een belangrijk toernooi",
+      "question": "We hebben over 10 dagen een belangrijk toernooi. Mijn speler traint nu op hoog volume. Moet ik een tapering-week inlassen?",
+      "firstResponse": "Ja, enige vorm van tapering is bij de meeste sporters zinvol voor een belangrijk toernooi. De vuistregel: verlaag het volume (40-60%), maar houd de intensiteit hoog. Te vroeg beginnen of te veel volume reduceren vermindert het effect.\n\nEen vraag om beter advies te kunnen geven: hoe voelt de speler zich de afgelopen week? Zijn de welzijns- of vermoeidheidsscores normaal, of zijn ze al aan het zakken?",
+      "coachReplies": [
+        {
+          "label": "Scores zijn normaal, voelt goed",
+          "response": "Mooi — dan heb je de luxe om het tapering-moment zelf te kiezen. Bij 10 dagen voor het toernooi zou ik dit schema overwegen:\n\nDag 1-5: volume met 40% omlaag, intensiteit gelijk of iets hoger. Dag 6-8: korte pittige sessies, veel rust ertussen. Dag 9-10: lichte activering, focus op gevoel en zelfvertrouwen.\n\nEén ding om te bewaken: sommige sporters worden onrustig of 'fris-nerveus' als ze minder trainen. Bespreek dat van tevoren — het is normaal en een goed teken, geen reden om toch extra te trainen.\n\nKanttekening: tapering-onderzoek is grotendeels gedaan bij senior sporters. De exacte waarden voor jongeren (<18) zijn minder goed gedocumenteerd — vertrouw ook op wat jij en de speler ervaren."
+        },
+        {
+          "label": "Scores zakken al een beetje",
+          "response": "Dan is het eigenlijk al tijd om te beginnen — je bent er waarschijnlijk precies op het goede moment mee bezig.\n\nAls de welzijnsscores al zakken, is de kans groot dat de speler cumulatieve vermoeidheid opgebouwd heeft. Tapering is dan geen keuze maar noodzaak. Verlaag het volume de komende 3-4 dagen fors (50-60%), maar houd 1-2 intensieve prikkels per week om de scherpte vast te houden.\n\nVolg de scores dagelijks. Als ze na 3-4 dagen niet herstellen, overweeg dan of de intensiteit ook iets omlaag moet — dat is zeldzamer nodig maar kan bij forse vermoeidheid het verschil maken."
+        },
+        {
+          "label": "Geen scores, ik schat het in",
+          "response": "Dat is een veelgehoorde situatie — monitoring is niet altijd beschikbaar of ingericht. In dat geval word jij het meetinstrument.\n\nDing om op te letten de komende dagen: slaapkwaliteit (speler geeft zelf aan), stemming en prikkelbaarheid, motivatie voor training, en herstelsnelheid na sessies. Dat zijn de vier signalen die het meest betrouwbaar zijn als je geen objectieve data hebt.\n\nMijn advies: begin nu al met volume verlagen, zodat je ruimte houdt om bij te sturen. Het risico van iets te vroeg taperen is kleiner dan het risico van te laat ingrijpen bij een vermoeid lichaam voor een toernooi."
+        }
+      ],
+      "evidence": [
+        "Mujika & Padilla (2003) — Tapering in competitive athletes: a critical review",
+        "Monitoring belasting-belastbaarheid — RPE en TQR als proximale prestatievoorspellers",
+        "Bias-kanttekening: tapering-literatuur is grotendeels gebaseerd op volwassen mannelijke sporters"
+      ],
+      "disclaimer": "Dit zijn algemene richtlijnen. De optimale taperingvorm is altijd individueel. Observeer je speler goed de komende dagen."
+    }
+  ],
+  "feedbackPrompts": [
+    "Helpt dit prototype om sneller te bepalen wat er gebouwd moet worden?",
+    "Wat ontbreekt er nog voor een echte test met gebruikers?",
+    "Welke aanname moet als eerste gevalideerd worden?"
+  ]
+}</script>
+  <script>
+    const model = JSON.parse(document.querySelector("#seed").textContent);
+    const byKey = Object.fromEntries(model.sections.map(s => [s.key, s]));
+    const state = { scenario: model.chatScenarios[0]?.id || null, feedback: "", note: "", coachReply: null };
+
+    function el(id) { return document.getElementById(id); }
+    function esc(v) {
+      return String(v).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
+    }
+    function items(key, fallback) {
+      return (byKey[key]?.items || []).filter(Boolean);
+    }
+    function itemsHtml(key) {
+      const list = items(key);
+      if (!list.length) return "<p>Geen notities beschikbaar.</p>";
+      return "<ul class='assumption-list'>" + list.map(i => `<li>${esc(i)}</li>`).join("") + "</ul>";
+    }
+
+    // ---- Header ----
+    function renderShell() {
+      el("eyebrow").textContent = `${model.organisation} · ${model.date || "workshopcanvas"}`;
+      el("title").textContent = model.projectName;
+      if (model.logoDataUri) {
+        el("logo-wrap").innerHTML = `<img src="${model.logoDataUri}" alt="${esc(model.organisation)} logo" style="max-height:48px;max-width:220px;object-fit:contain;display:block;">`;
+      }
+      el("source-list").innerHTML = model.sections.map(s =>
+        `<div class="source-item"><strong>${esc(s.label)}</strong><small>${s.items.length} notities</small></div>`
+      ).join("");
+    }
+
+    // ---- Uitdaging ----
+    function renderChallenge() {
+      const context = items("gebruikerContext");
+      const pain = items("pijnpunten");
+      const ai = items("aiMogelijkheden");
+      const current = items("huidigProces");
+      el("challenge").innerHTML = `
+        <h2>De uitdaging</h2>
+        <p>Talentcoaches hebben dagelijks complexe begeleidingsvragen maar weinig toegang tot evidence-based kennis op het moment dat het er toe doet — op locatie, buiten kantooruren, in de drukte van de dag.</p>
+        <div class="challenge-grid">
+          <div class="challenge-card">
+            <h3>Voor wie</h3>
+            ${context.length ? `<ul>${context.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>` : "<p>Talentcoaches bij RTC's en bonden.</p>"}
+          </div>
+          <div class="challenge-card">
+            <h3>Huidig proces</h3>
+            ${current.length ? `<ul>${current.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>` : "<p>Coaches overleggen ad hoc met collega's.</p>"}
+          </div>
+          <div class="challenge-card">
+            <h3>Pijnpunten</h3>
+            ${pain.length ? `<ul>${pain.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>` : "<p>Weinig klankbord buiten kantooruren.</p>"}
+          </div>
+          <div class="challenge-card">
+            <h3>AI-kansen</h3>
+            ${ai.length ? `<ul>${ai.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>` : "<p>24/7 sparringpartner via chat.</p>"}
+          </div>
+        </div>
+        <div class="persona-row">
+          <div class="persona"><strong>RTC-coach</strong><span>Begeleidt 8–15 talenten, werkt 4–6 dagen/week op locatie</span></div>
+          <div class="persona"><strong>Bondstrainer</strong><span>Reist veel, vraagt zich af of zijn kennis up-to-date is</span></div>
+          <div class="persona"><strong>Opleidingscoach</strong><span>Weinig tijd voor literatuur, wil concrete handvatten</span></div>
+        </div>
+      `;
+    }
+
+    // ---- Aannames ----
+    function renderAssumptions() {
+      const assumptions = items("kritischeAannames");
+      const quality = items("datakwaliteit");
+      const sources = items("databronnen");
+      const product = items("productDienst");
+      el("assumptions").innerHTML = `
+        <h2>Aannames <span class="mock-badge">te toetsen</span></h2>
+        <p>Dit zijn de aannames waarop het prototype rust. Ze moeten worden gevalideerd voordat er een functionele app wordt gebouwd.</p>
+        <div class="assumption-grid">
+          <div class="assumption-card">
+            <h3>Kritische aannames</h3>
+            ${assumptions.length ? `<ul class="assumption-list">${assumptions.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>` : "<p>Zie canvas.</p>"}
+          </div>
+          <div class="assumption-card">
+            <h3>Kennislaag & databronnen</h3>
+            ${sources.length ? `<ul class="assumption-list">${sources.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>` : "<p>Zie canvas.</p>"}
+          </div>
+          <div class="assumption-card">
+            <h3>Datakwaliteit & scope</h3>
+            ${quality.length ? `<ul class="assumption-list">${quality.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>` : "<p>Zie canvas.</p>"}
+          </div>
+          <div class="assumption-card">
+            <h3>Productvorm</h3>
+            ${product.length ? `<ul class="assumption-list">${product.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>` : "<p>Chatinterface op smartphone en laptop.</p>"}
+          </div>
+        </div>
+      `;
+    }
+
+    // ---- Chat Demo ----
+    function activeScenario() {
+      return model.chatScenarios.find(s => s.id === state.scenario) || model.chatScenarios[0];
+    }
+
+    function paras(text) {
+      return text.split("\n\n").filter(Boolean).map(p => `<p>${esc(p)}</p>`).join("");
+    }
+
+    function renderDemo() {
+      const sc = activeScenario();
+      if (!sc) { el("demo").innerHTML = "<p>Geen scenario's beschikbaar.</p>"; return; }
+
+      const chosenReply = state.coachReply && sc.coachReplies
+        ? sc.coachReplies.find(r => r.label === state.coachReply) : null;
+
+      const replyButtons = sc.coachReplies ? sc.coachReplies.map(r =>
+        `<button class="reply-btn" data-reply="${esc(r.label)}">${esc(r.label)}</button>`
+      ).join("") : "";
+
+      el("demo").innerHTML = `
+        <h2>Interactieve Demo <span class="mock-badge">gemockt</span></h2>
+        <p>Kies een coachingscenario. Beantwoord de vervolgvraag van de AI om het tweede deel van het antwoord te zien.</p>
+        <div class="scenario-bar">
+          ${model.chatScenarios.map(s =>
+            `<button class="scenario-btn${s.id===state.scenario?" active":""}" data-scenario="${s.id}">${esc(s.label)}</button>`
+          ).join("")}
+        </div>
+        <div class="chat-layout">
+          <div class="chat-main">
+            <div class="chat-window" id="chat-window">
+
+              <!-- Coach vraag -->
+              <div style="align-self:flex-end">
+                <div class="bubble-coach">${esc(sc.question)}</div>
+              </div>
+
+              <!-- Eerste AI antwoord -->
+              <div style="align-self:flex-start; max-width:90%">
+                <div class="bubble-ai-label">AI Sparringpartner</div>
+                <div class="bubble-ai">${paras(sc.firstResponse)}</div>
+              </div>
+
+              ${replyButtons ? `
+              <!-- Coach keuze knoppen -->
+              <div style="align-self:flex-end; max-width:90%">
+                ${chosenReply
+                  ? `<div class="bubble-coach">${esc(chosenReply.label)}</div>`
+                  : `<div class="reply-row">${replyButtons}</div>`
+                }
+              </div>` : ""}
+
+              ${chosenReply ? `
+              <!-- Tweede AI antwoord -->
+              <div style="align-self:flex-start; max-width:90%">
+                <div class="bubble-ai-label">AI Sparringpartner</div>
+                <div class="bubble-ai">
+                  ${paras(chosenReply.response)}
+                  <div class="disclaimer">⚠️ ${esc(sc.disclaimer)}</div>
+                </div>
+              </div>` : ""}
+
+            </div>
+
+            ${chosenReply ? `
+            <div style="margin-top:8px">
+              <button class="reset-btn" id="reset-btn">↩ Andere keuze maken</button>
+            </div>` : ""}
+
+            <div class="voice-row" style="margin-top:10px">
+              <button class="voice-btn" disabled title="Beschikbaar in Fase 2">🎤 Spraak invoer (fase 2)</button>
+              <button class="voice-btn" disabled title="Beschikbaar in Fase 2">🔊 Voorlezen (fase 2)</button>
+            </div>
+          </div>
+          <div class="chat-sidebar">
+            <div class="evidence-panel">
+              <h3>Bronnen achter dit antwoord</h3>
+              ${sc.evidence.map(e => `<div class="evidence-item">${esc(e)}</div>`).join("")}
+            </div>
+            <div class="evidence-panel">
+              <h3>Hoe werkt de demo?</h3>
+              <p style="font-size:0.82rem">Dit is een <strong>gemockte</strong> interactie. Klik een antwoord om het tweede deel van het gesprek te zien. Een live versie reageert op vrije invoer via een taalmodel.</p>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.querySelectorAll(".scenario-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.scenario = btn.dataset.scenario;
+          state.coachReply = null;
+          renderDemo();
+        });
+      });
+      document.querySelectorAll(".reply-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.coachReply = btn.dataset.reply;
+          renderDemo();
+          setTimeout(() => {
+            const win = document.getElementById("chat-window");
+            if (win) win.scrollTop = win.scrollHeight;
+          }, 50);
+        });
+      });
+      const resetBtn = document.getElementById("reset-btn");
+      if (resetBtn) resetBtn.addEventListener("click", () => { state.coachReply = null; renderDemo(); });
+    }
+
+    // ---- Wat kan er misgaan? ----
+    function renderRisks() {
+      const privacy = items("ethiekPrivacy");
+      const value = items("waardecreatie");
+      el("risks").innerHTML = `
+        <h2>Wat kan er misgaan?</h2>
+        <p>Dit zijn de belangrijkste risico's en aandachtspunten voor de coach, de sporter en de organisatie.</p>
+        <div class="risk-grid">
+          <div class="risk-card red">
+            <h3>Hallucinatie & onjuist advies</h3>
+            <ul class="risk-list">
+              <li>AI kan zelfverzekerd klinken ook als het antwoord onjuist is</li>
+              <li>Coaches kunnen onjuiste informatie overnemen zonder te controleren</li>
+              <li>Mitigatie: kennislaag afgebakend, onzekerheid expliciet benoemd in output</li>
+            </ul>
+          </div>
+          <div class="risk-card yellow">
+            <h3>Privacy & persoonsgegevens</h3>
+            ${privacy.length ? `<ul class="risk-list">${privacy.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>` : `
+            <ul class="risk-list">
+              <li>Coaches kunnen namen of gevoelige gegevens invoeren</li>
+              <li>Vereist AVG-conformiteit van het hostingplatform</li>
+              <li>DPO-toets noodzakelijk vóór pilot</li>
+            </ul>`}
+          </div>
+          <div class="risk-card yellow">
+            <h3>Bias voor vrouwen & jongeren</h3>
+            <ul class="risk-list">
+              <li>Sportwetenschap is sterk gericht op mannelijke volwassen topsporters</li>
+              <li>Bevindingen zijn niet altijd overdraagbaar naar meisjes &lt;18 jaar</li>
+              <li>Mitigatie: kennislaag annoteert per bron op doelgroep</li>
+            </ul>
+          </div>
+          <div class="risk-card blue">
+            <h3>Over-afhankelijkheid coach</h3>
+            <ul class="risk-list">
+              <li>Coach kan eigen oordeel te snel vervangen door AI-advies</li>
+              <li>Principe P-01: coach blijft altijd beslisser — afdwingbaar via prompt</li>
+              <li>Evaluatie pilot let op dit gedrag</li>
+            </ul>
+          </div>
+          <div class="risk-card blue">
+            <h3>Adoptie & compliance</h3>
+            <ul class="risk-list">
+              <li>Coaches moeten vertrouwen hebben in het systeem om het te gebruiken</li>
+              <li>Eerste pilots bepalen of de tool de gewenste gesprekskwaliteit heeft</li>
+              <li>Spraakondersteuning is cruciaal voor gebruik op locatie</li>
+            </ul>
+          </div>
+          <div class="risk-card red">
+            <h3>Waardecreatie onzeker</h3>
+            ${value.length ? `<ul class="risk-list">${value.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>` : `
+            <ul class="risk-list">
+              <li>Het is nog niet bewezen dat gesprekskwaliteit met de tool verbetert</li>
+              <li>Pilotevaluatie na 8-12 weken is de eerste echte toets</li>
+            </ul>`}
+          </div>
+        </div>
+      `;
+    }
+
+    // ---- Next Steps ----
+    function renderNext() {
+      const timeline = items("tijdlijnTeam");
+      const metrics = items("succesMetrics");
+      el("next").innerHTML = `
+        <h2>Next Steps</h2>
+        <p>Gebruik de feedback uit dit prototype om te bepalen wat straks in de kennislaag en de live chatapp hoort.</p>
+        <div class="roadmap">
+          <article>
+            <h3>Kennislaag cureren</h3>
+            <p>Stel samen met domeinexperts de definitieve bronnen vast. Annoteer elke bron op doelgroep (leeftijd, geslacht). Sluit de open besluiten over OB-03 af.</p>
+          </article>
+          <article>
+            <h3>Privacy-toets DPO</h3>
+            <p>Laat DPO of juridisch adviseur de AVG-conformiteit bevestigen vóór de pilot start. Kies het hostingplatform (OB-01) op basis van dit advies.</p>
+          </article>
+          <article>
+            <h3>Pilot 5–10 coaches (week 7–10)</h3>
+            <p>Test de tool met echte coachingvragen. Meet adoptie, gesprekskwaliteit en vertrouwen. Let op signalen van over-afhankelijkheid en hallucinaties die coaches overnemen.</p>
+          </article>
+          <article>
+            <h3>Evaluatie & besluit Fase 2</h3>
+            <p>Bepaal op basis van pilotresultaten of data-integratie (Niveau 2) toegevoegde waarde heeft. Pas de kennislaag aan op basis van bevindingen.</p>
+          </article>
+        </div>
+        <h3 style="margin-top:20px">Tijdlijn</h3>
+        ${timeline.length ? `<ul class="assumption-list">${timeline.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>` : ""}
+        <h3 style="margin-top:16px">Succesmetingen</h3>
+        ${metrics.length ? `<ul class="assumption-list">${metrics.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>` : ""}
+        <div class="feedback-section">
+          <h3>Feedback op dit prototype</h3>
+          <p class="dark">${esc(model.feedbackPrompts[0])}</p>
+          <div class="feedback-row" id="fb-row">
+            ${["Ja, nuttig","Bijna","Nog niet"].map(v=>`<button data-fb="${v}" class="${state.feedback===v?"selected":""}">${v}</button>`).join("")}
+          </div>
+          <label for="fb-note">Wat moet er veranderen voordat dit naar een live app gaat?</label><br>
+          <textarea id="fb-note" class="feedback-note">${esc(state.note)}</textarea>
+          <div class="feedback-status" id="fb-status">${state.feedback?"Vastgelegd: "+esc(state.feedback):""}</div>
+        </div>
+      `;
+      document.querySelectorAll("[data-fb]").forEach(btn => {
+        btn.addEventListener("click", () => { state.feedback = btn.dataset.fb; renderNext(); });
+      });
+      el("fb-note").addEventListener("input", e => { state.note = e.target.value; });
+    }
+
+    // ---- Navigation ----
+    function showView(id) {
+      document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id===id));
+      document.querySelectorAll("nav button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.view===id)));
+      if (id==="challenge") renderChallenge();
+      if (id==="assumptions") renderAssumptions();
+      if (id==="demo") renderDemo();
+      if (id==="risks") renderRisks();
+      if (id==="next") renderNext();
+    }
+
+    document.querySelectorAll("nav button").forEach(btn => {
+      btn.addEventListener("click", () => showView(btn.dataset.view));
+    });
+
+    renderShell();
+    renderChallenge();
+    renderAssumptions();
+    renderDemo();
+    renderRisks();
+    renderNext();
+  </script>
+</body>
+</html>

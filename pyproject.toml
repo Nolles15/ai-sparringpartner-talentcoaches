@@ -1,0 +1,47 @@
+[build-system]
+requires = [
+    "setuptools>=68.0",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ailab-rapid-prototype"
+version = "0.1.0"
+description = "Lightweight workshop template for AI-assisted rapid prototyping"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    { name = "Workshop Participant" },
+]
+dependencies = [
+    "pandas",
+    "streamlit",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "pytest",
+    "ruff",
+]
+
+[tool.setuptools]
+py-modules = []
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+rget-version = "py311"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.uvicorn]
+host = "0.0.0.0"
+port = 8000
+reload = true

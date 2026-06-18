@@ -1,0 +1,332 @@
+# User Stories — AI Sparringpartner voor Talentcoaches
+
+**Hanzehogeschool Groningen — Lectoraat Sportinnovator / AI Impact Lab**
+Versie 1.1 — juni 2026 *(bijgewerkt na gebruikerstest Iteratie 1)*
+
+Wijzigingen t.o.v. versie 1.0 zijn gemarkeerd met ⚠️ (aangepast) of ➕ (nieuw).
+
+---
+
+## Actoren
+
+| Actor | Omschrijving |
+|---|---|
+| **Talentcoach** | Coacht 10–20 sporters in een RTC, talentteam of opleidingsploeg richting (sub)topniveau. Heeft domeinkennis en motivatie, maar geen data-analist of sportwetenschapper beschikbaar. Gebruikt de tool ad-hoc op smartphone én laptop. Laag tot middel technisch niveau. |
+| **Sporter** | Vult dagelijks monitoring in (welzijn, RPE, slaap). Ontvangt via de coach terugkoppeling op basis van de tool. Heeft geen directe toegang tot de chatbot in de MVP. |
+| **Projectteam / lectoraat** | Beheert de kennislaag, evalueert gesprekslogs, voert diepte-interviews uit. Heeft geen actieve rol in de chatbot zelf, maar is eigenaar van kwaliteit en doorontwikkeling. |
+
+---
+
+## Epicoverzicht
+
+| Epic | Omschrijving | Stories |
+|---|---|---|
+| E-01 | Sparringpartner-gesprek | US-01, US-02, US-03 |
+| E-02 | Kennislaag & antwoordkwaliteit | US-04, US-05 |
+| E-03 | Privacy & verantwoord gebruik | US-06, US-07 |
+| E-04 | Onboarding & adoptie | US-08, US-09 |
+| E-05 | Spraak & multimodaliteit | US-10, US-11 |
+| E-06 | Contextpersistentie & geheugen | US-12, US-13 |
+
+---
+
+## E-01 — Sparringpartner-gesprek
+
+### US-01 — Een vrije vraag stellen in gewone taal ✅
+
+```
+Als talentcoach
+wil ik in gewone taal een vraag kunnen stellen over een situatie met een sporter
+zodat ik een doordacht perspectief krijg dat mij helpt verder te denken
+```
+
+**Prioriteit:** Must-have (MVP)
+**Primaire actor:** Talentcoach
+**Context / tijdsbudget:** Ad-hoc gebruik, voor/na training of bij voorbereiding van een 1-op-1 gesprek. Sessie duurt typisch 3–10 minuten.
+
+**Acceptatiecriteria:**
+- [ ] Coach kan een vraag invoeren als vrije tekst zonder structuur of formatvereiste
+- [ ] Systeem geeft een antwoord binnen 10 seconden
+- [ ] Antwoord is geformuleerd als perspectief, overweging of vervolgvraag — niet als definitieve conclusie
+- [ ] Antwoord bevat minimaal één concrete vervolgstap of vervolgvraag voor de coach
+- [ ] Systeem stelt geen diagnose en schrijft geen behandeling voor
+- [ ] ⚠️ Als de coach geen expliciete vraag stelt maar een situatie beschrijft, reageert het systeem met een uitnodigende vervolgvraag — niet met een antwoord dat nog niet gevraagd is
+
+---
+
+### US-02 — Context opbouwen binnen een sessie ✅
+
+```
+Als talentcoach
+wil ik tijdens een gesprek context kunnen toevoegen (sport, ploeg, situatie)
+zodat het systeem steeds relevantere en meer toegespitste antwoorden geeft naarmate het gesprek vordert
+```
+
+**Prioriteit:** Must-have (MVP)
+**Primaire actor:** Talentcoach
+**Context / tijdsbudget:** Geldt voor de volledige sessieduur; context is vluchtig en verdwijnt na afsluiting van de sessie.
+
+**Acceptatiecriteria:**
+- [ ] Systeem gebruikt eerder gedeelde context (bijv. sport, leeftijdscategorie, beschreven situatie) in latere antwoorden binnen dezelfde sessie
+- [ ] Coach hoeft context niet te herhalen zolang de sessie actief is
+- [ ] Na afsluiting van de sessie wordt geen context bewaard (geen persistente geheugen in MVP)
+- [ ] Systeem maakt duidelijk wanneer het terugverwijst naar eerder gedeelde informatie
+
+---
+
+### US-03 — Een gesprek afsluiten met een concrete actie of vraag ✅
+
+```
+Als talentcoach
+wil ik aan het einde van een gesprek weten wat mijn volgende stap is
+zodat ik het gesprek met de tool omzet in iets wat ik daadwerkelijk doe in mijn coachpraktijk
+```
+
+**Prioriteit:** Must-have (MVP)
+**Primaire actor:** Talentcoach
+**Context / tijdsbudget:** Laatste fase van een sessie; output moet bruikbaar zijn als notitie voor een 1-op-1 of trainingsmoment.
+
+**Acceptatiecriteria:**
+- [ ] Systeem biedt aan het einde van een gesprek (of op verzoek) een samenvatting van besproken punten en concrete vervolgacties of -vragen
+- [ ] Samenvatting is in maximaal 5 punten en past op één scherm op een smartphone
+- [ ] "Nog niet weten" of "pas op de plaats" is een expliciete en geldige uitkomst — systeem dringt geen kunstmatige conclusie op
+- [ ] Coach kan de samenvatting kopiëren (tekst selecteerbaar)
+- [ ] ⚠️ Systeem vraagt aan het einde of de coach de context van dit gesprek wil bewaren voor een volgend gesprek over dezelfde sporter (MVP: informatie vastleggen als wens; uitvoering in fase 2 via US-12/US-13)
+
+---
+
+## E-02 — Kennislaag & antwoordkwaliteit
+
+### US-04 — Antwoord gebaseerd op relevante vakkennis ✅
+
+```
+Als talentcoach
+wil ik dat antwoorden zijn gebaseerd op sportwetenschap en monitoringmethodologie
+zodat ik erop kan vertrouwen dat wat ik lees inhoudelijk verantwoord is
+```
+
+**Prioriteit:** Must-have (MVP)
+**Primaire actor:** Talentcoach
+**Context / tijdsbudget:** Geldt voor elke interactie.
+
+**Acceptatiecriteria:**
+- [ ] Antwoorden zijn aantoonbaar gebaseerd op de gecureerde kennislaag (trainingsbelasting, welzijn, RPE, talentontwikkeling, vragenlijstmethodologie, medische drempelkennis)
+- [ ] Systeem geeft bij een antwoord de bron of het type redenering aan (bijv. "op basis van onderzoek naar trainingsbelasting bij jongeren")
+- [ ] ⚠️ Systeem voegt bij minimaal 80% van de inhoudelijke antwoorden een bronverwijzing of redenering-toelichting toe — bevestigd als waardevol door gebruikerstest Iteratie 1
+- [ ] Systeem zegt expliciet wanneer het bewijs dun is of niet direct van toepassing op de doelgroep (vrouwen, jongeren)
+- [ ] Systeem verzint geen feiten: als het antwoord buiten de kennislaag valt, geeft het dat aan
+- [ ] ➕ Op verzoek kan het systeem een voorbeeld uit een andere sport aanhalen, expliciet gelabeld als "voorbeeld uit een andere context"
+
+---
+
+### US-05 — Doorverwijzing naar een specialist ✅
+
+```
+Als talentcoach
+wil ik dat het systeem mij doorverwijst als een vraag buiten zijn competentie valt
+zodat ik weet wanneer ik een sportarts, fysiotherapeut of sportwetenschapper moet raadplegen
+```
+
+**Prioriteit:** Must-have (MVP)
+**Primaire actor:** Talentcoach
+
+**Acceptatiecriteria:**
+- [ ] Bij vragen over blessures, medische symptomen of behandeling verwijst het systeem expliciet door naar een sportarts of fysiotherapeut
+- [ ] ⚠️ Bij medische drempelkwesties helpt het systeem de coach eerst het afwegingskader te doorlopen (wat zijn de signalen, hoe lang al, is er pijn?) vóór het doorverwijst — bevestigd als concrete coachingbehoefte in gebruikerstest Iteratie 1
+- [ ] Bij vragen die Niveau 2-data vereisen (bijv. "analyseer mijn Smartabase-data") legt het systeem uit dat dit buiten de MVP-scope valt
+- [ ] Doorverwijzing is altijd vriendelijk en niet-beschuldigend geformuleerd
+- [ ] Systeem stopt niet simpelweg — het geeft altijd een reden en een alternatief pad
+
+---
+
+## E-03 — Privacy & verantwoord gebruik
+
+### US-06 — Geïnformeerd gebruik zonder persoonsgegevens ✅
+
+```
+Als talentcoach
+wil ik weten hoe ik de tool verantwoord gebruik met betrekking tot privacy van mijn sporters
+zodat ik geen regels overtreedt en mijn sporters bescherm
+```
+
+**Prioriteit:** Must-have (MVP)
+**Primaire actor:** Talentcoach
+
+**Acceptatiecriteria:**
+- [ ] Bij onboarding wordt expliciet uitgelegd dat coaches geen identificeerbare persoonsgegevens (namen, diagnoses, BSN) moeten invoeren
+- [ ] Systeem toont bij eerste gebruik een beknopte privacytoelichting: welk model wordt gebruikt, waar data heen gaat, wat de retentietermijn is
+- [ ] Systeemprompt instrueert de AI om coaches te attenderen op anonimisering als ze (vermoedelijk) persoonsgegevens invoeren
+- [ ] Privacytoelichting is in begrijpelijke taal — geen juridisch jargon
+
+---
+
+### US-07 — Gesprekslogs voor kwaliteitsverbetering ✅
+
+```
+Als projectteam
+willen we gesprekslogs kunnen analyseren op gebruikspatronen en inhoudskwaliteit
+zodat we de kennislaag en systeemprompt gericht kunnen verbeteren na de pilot
+```
+
+**Prioriteit:** Should-have (MVP indien OB-06 is besloten)
+**Primaire actor:** Projectteam / lectoraat
+**Afhankelijkheid:** OB-06 (logbeleid vastgesteld vóór pilot)
+
+**Acceptatiecriteria:**
+- [ ] Gesprekslogs worden opgeslagen met minimale metadata (tijdstip, sessieduur, gespreksonderwerpen — geen identificerende data)
+- [ ] Coaches zijn bij onboarding geïnformeerd over het feit dat sessies worden gelogd voor kwaliteitsverbetering
+- [ ] Toegang tot logs is beperkt tot geautoriseerde projectteamleden
+- [ ] Logs worden niet langer bewaard dan de evaluatieperiode, conform OB-06
+
+---
+
+## E-04 — Onboarding & adoptie
+
+### US-08 — Eerste gebruik zonder handleiding ✅
+
+```
+Als talentcoach
+wil ik de tool kunnen gebruiken zonder uitgebreide instructies
+zodat de drempel om ermee te starten zo laag mogelijk is
+```
+
+**Prioriteit:** Must-have (MVP)
+**Primaire actor:** Talentcoach
+
+**Acceptatiecriteria:**
+- [ ] Interface bevat een korte introductietekst (max. 3 zinnen) die uitlegt wat de tool doet en wat het niet doet
+- [ ] Interface bevat 2–4 voorbeeldvragen waarmee een coach direct kan starten
+- [ ] Coach kan binnen 60 seconden na inloggen een eerste vraag stellen
+- [ ] Er is geen uitgebreide registratie of configuratie vereist vóór eerste gebruik
+
+---
+
+### US-09 — Demo-sessie als startpunt voor pilotcoaches ✅
+
+```
+Als pilotcoach
+wil ik een korte introductiesessie van ~30 minuten krijgen
+zodat ik begrijp hoe ik de tool het beste kan inzetten in mijn coachpraktijk
+```
+
+**Prioriteit:** Should-have (MVP)
+**Primaire actor:** Talentcoach (pilotgroep)
+
+**Acceptatiecriteria:**
+- [ ] Er is een demo-sessieformat beschikbaar (agenda, voorbeeldvragen, uitleg MVP-scope)
+- [ ] Pilotcoaches weten na de sessie wat de tool wel en niet kan
+- [ ] Pilotcoaches hebben na de sessie inloggegevens en kunnen zelfstandig verder
+- [ ] Contactpersoon voor vragen tijdens de pilot is bekend bij elke pilotcoach
+
+---
+
+## E-05 — Spraak & multimodaliteit
+
+### US-10 — Vraag stellen via spraak ✅
+
+```
+Als talentcoach op een sportlocatie
+wil ik een vraag kunnen inspreken in plaats van typen
+zodat ik de tool kan gebruiken terwijl ik onderweg ben of mijn handen niet vrij zijn
+```
+
+**Prioriteit:** Must-have (MVP)
+**Primaire actor:** Talentcoach
+**Context / tijdsbudget:** Gebruik op smartphone, op locatie, typisch < 2 minuten.
+
+**Acceptatiecriteria:**
+- [ ] Interface biedt een microfoonknop waarmee de coach een vraag kan inspreken
+- [ ] Gesproken invoer wordt correct omgezet naar tekst (spraakherkenning in het Nederlands)
+- [ ] Coach kan de herkende tekst controleren en corrigeren vóór verzending
+- [ ] Functionaliteit werkt op gangbare iOS- en Android-smartphones
+- [ ] Bij ontbrekende microfoontoegang toont de interface een heldere foutmelding
+
+---
+
+### US-11 — Antwoord laten voorlezen ✅
+
+```
+Als talentcoach op locatie
+wil ik dat het antwoord van de tool hardop wordt voorgelezen
+zodat ik het kan beluisteren zonder naar mijn scherm te kijken
+```
+
+**Prioriteit:** Must-have (MVP)
+**Primaire actor:** Talentcoach
+**Context / tijdsbudget:** Gebruik op smartphone, bijv. tijdens rijden naar locatie of tussen trainingsonderdelen.
+
+**Acceptatiecriteria:**
+- [ ] Elk antwoord heeft een "Voorlezen"-knop die text-to-speech activeert
+- [ ] Voorgelezen tekst is in het Nederlands met een begrijpelijke spreeksnelheid
+- [ ] Coach kan het voorlezen pauzeren of stoppen
+- [ ] Functionaliteit werkt op gangbare iOS- en Android-smartphones zonder extra app-installatie
+
+---
+
+## E-06 — Contextpersistentie & geheugen
+
+### US-12 — Gesprekgeschiedenis bewaren ⚠️
+
+```
+Als talentcoach
+wil ik eerdere gesprekken met de tool kunnen terugvinden
+zodat ik kan voortbouwen op eerdere inzichten en actiepunten
+```
+
+**Prioriteit:** ⚠️ **Must-have fase 2** — *herprioriteerd van nice-to-have naar must-have fase 2 op basis van gebruikerstest Iteratie 1*
+**Primaire actor:** Talentcoach
+
+**Toelichting (bijgewerkt):**
+Persistente gespreksgeschiedenis bleek in gebruikerstest Iteratie 1 geen luxe maar een bijna-basisverwachting. De geteste coach gaf expliciet aan dat hij na een gesprek conclusies en kenmerken van de sporter wil kunnen bewaren, zodat het bij een volgende sessie over dezelfde sporter direct opnieuw beschikbaar is. Dit raakt direct aan duurzame adoptie — zonder geheugen is de contextlast per sessie te hoog voor herhaald gebruik. Bewust buiten MVP gehouden vanwege AVG-overwegingen (OB-07) en infrastructuurkosten, maar wordt als prioriteit 1 voor fase 2 aangemerkt.
+
+**Acceptatiecriteria (fase 2):**
+- [ ] Coach kan vorige sessies terugvinden gesorteerd op datum
+- [ ] Opgeslagen sessies zijn uitsluitend zichtbaar voor de coach die ze heeft gevoerd
+- [ ] Coach kan een sessie verwijderen
+- [ ] Retentiebeleid en toegangscontrole zijn AVG-conform vastgesteld (OB-07)
+- [ ] Systeem vraagt aan het einde van elke sessie of de coach conclusies wil bewaren
+
+---
+
+### ➕ US-13 — Sporterprofiel aanmaken en gebruiken
+
+```
+Als talentcoach
+wil ik een profiel kunnen aanmaken per sporter of groep met vaste kenmerken
+zodat ik bij elk gesprek over die sporter niet opnieuw dezelfde achtergrond hoef uit te leggen
+```
+
+**Prioriteit:** Must-have fase 2
+**Primaire actor:** Talentcoach
+**Afhankelijkheid:** OB-07 (contextpersistentie-besluit), US-12
+
+**Rationale:**
+Gebruikerstest Iteratie 1 toont aan dat de contextlast (telkens opnieuw uitleggen wie de sporter is, welke sport, welke monitoring-aanpak, lopende aandachtspunten) een significante drempel vormt voor herhaald gebruik van de tool. Coaches spreken collega's in de hal die de sporter al kennen — de tool mist die gedeelde achtergrondkennis. Een sporterprofiel verlaagt deze drempel structureel.
+
+**Acceptatiecriteria (fase 2):**
+- [ ] Coach kan een profiel aanmaken met: sport, leeftijdscategorie, ploeggrootte, gebruikte monitoringsysteem, lopende aandachtspunten
+- [ ] Bij openen van een gesprek over een bekende sporter laadt het systeem het profiel als achtergrondcontext
+- [ ] Coach kan het profiel bijwerken na een gesprek
+- [ ] Systeem biedt aan het einde van een sessie aan conclusies en actiepunten toe te voegen aan het profiel
+- [ ] Profielen zijn uitsluitend zichtbaar voor de coach die ze heeft aangemaakt
+- [ ] AVG-conformiteit van profielopslag is geborgd via OB-07
+
+---
+
+## Prioriteitenmatrix
+
+| Story | Epic | Prioriteit | MVP? |
+|---|---|---|---|
+| US-01 — Vrije vraag stellen | E-01 | Must-have | ✅ |
+| US-02 — Context opbouwen in sessie | E-01 | Must-have | ✅ |
+| US-03 — Afsluiten met concrete actie | E-01 | Must-have | ✅ |
+| US-04 — Antwoord op basis van vakkennis | E-02 | Must-have | ✅ |
+| US-05 — Doorverwijzing naar specialist | E-02 | Must-have | ✅ |
+| US-06 — Privacyinstructie bij onboarding | E-03 | Must-have | ✅ |
+| US-07 — Gesprekslogs voor kwaliteitsverbetering | E-03 | Should-have | ⚠️ (afhankelijk van OB-06) |
+| US-08 — Eerste gebruik zonder handleiding | E-04 | Must-have | ✅ |
+| US-09 — Demo-sessie pilotcoaches | E-04 | Should-have | ✅ |
+| US-10 — Vraag stellen via spraak | E-05 | Must-have | ✅ |
+| US-11 — Antwoord laten voorlezen | E-05 | Must-have | ✅ |
+| US-12 — Gesprekgeschiedenis bewaren | E-06 | ⚠️ Must-have fase 2 | ❌ (fase 2, hoge prioriteit) |
+| US-13 — Sporterprofiel aanmaken en gebruiken | E-06 | ➕ Must-have fase 2 | ❌ (fase 2, hoge prioriteit) |

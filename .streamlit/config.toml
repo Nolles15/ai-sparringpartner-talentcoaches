@@ -1,0 +1,13 @@
+# Hanze-huisstijl voor de app. Streamlit past dit thema automatisch toe.
+[theme]
+primaryColor = "#ED7C00"          # Hanze oranje (accent: knoppen, actieve tab)
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F2F1F8"  # licht paars-grijs voor panelen/zijbalk
+textColor = "#2E276C"             # Hanze paars voor tekst en koppen
+font = "sans serif"
+
+[client]
+toolbarMode = "minimal"           # verbergt de ontwikkel-/deploy-werkbalk
+
+[browser]
+gatherUsageStats = false
