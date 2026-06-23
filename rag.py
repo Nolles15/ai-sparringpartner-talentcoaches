@@ -25,6 +25,9 @@ INDEX_BESTAND = KENNISBANK / ".index.json"
 EMBED_MODEL = "text-embedding-3-small"
 STUKJE_TEKENS = 800  # streefgrootte van een stukje (in tekens)
 
+# Hulp-/metadatabestanden die geen kennis zijn en dus niet ingelezen worden.
+NIET_INLEZEN = {"readme.md", "unique_urls.txt", "url_filename_map.tsv"}
+
 
 # --- documenten inlezen ----------------------------------------------------
 
@@ -52,7 +55,7 @@ def _lees_documenten():
             continue
         if "__MACOSX" in pad.parts:           # Mac-zip-rommel overslaan
             continue
-        if pad.name.startswith(".") or pad.name.lower() == "readme.md":
+        if pad.name.startswith(".") or pad.name.lower() in NIET_INLEZEN:
             continue
         if pad.suffix.lower() not in (".md", ".txt", ".pdf"):
             continue
