@@ -471,49 +471,46 @@ STARTERS = [
 ]
 
 
-def sidebar_config():
-    """Zijbalk (verstopt): API key (met .env-fallback), modelkeuze en gespreksbeheer."""
-    st.sidebar.header("⚙️ Instellingen")
-    key_veld = st.sidebar.text_input(
-        "OpenAI API key", type="password",
-        help="Wordt niet opgeslagen. Laat leeg om OPENAI_API_KEY uit .env te gebruiken.",
-    )
-    model = st.sidebar.selectbox("Model", ALLOWED_MODELS, index=1)  # standaard gpt-5-mini
+def instellingen():
+    """Verstopt instellingenblok op de pagina zelf (ingeklapt): API key, model, beheer."""
+    with st.expander("⚙️ Instellingen (API-sleutel & model)", expanded=False):
+        key_veld = st.text_input(
+            "OpenAI API key", type="password",
+            help="Wordt niet opgeslagen. Laat leeg om OPENAI_API_KEY uit .env te gebruiken.",
+        )
+        model = st.selectbox("Model", ALLOWED_MODELS, index=1)  # standaard gpt-5-mini
 
-    # Key uit het veld; valt terug op .env (OPENAI_API_KEY). Nooit hardcoded.
-    api_key = key_veld or os.getenv("OPENAI_API_KEY", "")
-    if api_key and key_veld:
-        st.sidebar.caption("✅ API key uit het veld")
-    elif api_key:
-        st.sidebar.caption("✅ API key uit .env")
-    else:
-        st.sidebar.caption("⚠️ Nog geen API key — vul er een in of zet OPENAI_API_KEY in .env")
-
-    st.sidebar.divider()
-    st.sidebar.subheader("Kennisbank")
-    kb = rag.index_status()
-    if kb["bestaat"]:
-        extra = "" if kb["actueel"] else " · gewijzigd, herindexeer"
-        st.sidebar.caption(f"📚 {kb['stukjes']} stukjes geïndexeerd{extra}")
-    else:
-        st.sidebar.caption("📚 Nog niet geïndexeerd")
-    if st.sidebar.button("🔄 Herindexeer kennisbank"):
-        if not api_key:
-            st.sidebar.warning("Een API-key is nodig om te indexeren.")
+        # Key uit het veld; valt terug op .env (OPENAI_API_KEY). Nooit hardcoded.
+        api_key = key_veld or os.getenv("OPENAI_API_KEY", "")
+        if api_key and key_veld:
+            st.caption("✅ API key uit het veld")
+        elif api_key:
+            st.caption("✅ API key uit .env")
         else:
-            with st.spinner("Kennisbank indexeren..."):
-                try:
-                    stats = rag.bouw_index(api_key)
-                    st.sidebar.success(
-                        f"Klaar: {stats['documenten']} documenten, {stats['stukjes']} stukjes.")
-                except Exception as fout:
-                    st.sidebar.error(f"Indexeren mislukt: {fout}")
+            st.caption("⚠️ Nog geen API key — vul er een in of zet OPENAI_API_KEY in .env")
 
-    st.sidebar.divider()
-    if st.sidebar.button("🗑️ Nieuw gesprek"):
-        st.session_state.messages = []
-        st.rerun()
-    st.sidebar.caption("Privacy: typ geen namen of herleidbare gegevens van sporters in.")
+        kol1, kol2 = st.columns(2)
+        with kol1:
+            if st.button("🔄 Herindexeer kennisbank"):
+                if not api_key:
+                    st.warning("Een API-key is nodig om te indexeren.")
+                else:
+                    with st.spinner("Kennisbank indexeren..."):
+                        try:
+                            stats = rag.bouw_index(api_key)
+                            st.success(f"Klaar: {stats['documenten']} documenten, "
+                                       f"{stats['stukjes']} stukjes.")
+                        except Exception as fout:
+                            st.error(f"Indexeren mislukt: {fout}")
+        with kol2:
+            if st.button("🗑️ Nieuw gesprek"):
+                st.session_state.messages = []
+                st.rerun()
+
+        kb = rag.index_status()
+        status = (f"📚 {kb['stukjes']} stukjes geïndexeerd" if kb["bestaat"]
+                  else "📚 nog niet geïndexeerd")
+        st.caption(status + " · Privacy: typ geen herleidbare gegevens van sporters in.")
     return api_key, model
 
 
@@ -555,7 +552,7 @@ def scherm_demo(api_key, model):
         st.caption("Een meedenkende collega op basis van sportwetenschap en SportData Valley. "
                    "Typ je vraag hieronder, of kies een voorbeeld om te starten.")
         if not api_key:
-            st.info("⚙️ Vul eerst je OpenAI-sleutel in via **Instellingen** (zijbalk linksboven).")
+            st.info("⚙️ Open **Instellingen** hierboven en vul je OpenAI-sleutel in om te starten.")
         kolommen = st.columns(len(STARTERS))
         for kol, (label, vraagtekst) in zip(kolommen, STARTERS):
             if kol.button(label, key=f"start::{label}"):
@@ -574,7 +571,7 @@ def scherm_demo(api_key, model):
 
     if vraag:
         if not api_key:
-            st.warning("Vul links in de zijbalk eerst je OpenAI API key in.")
+            st.warning("Open **Instellingen** bovenaan en vul eerst je OpenAI API key in.")
             return
         st.session_state.messages.append({"role": "user", "content": vraag})
         with st.chat_message("user"):
@@ -676,9 +673,6 @@ st.set_page_config(page_title=PROJECT, page_icon="🧭", layout="wide",
 
 st.markdown(HUISSTIJL_CSS, unsafe_allow_html=True)
 
-# API-key en model staan bewust verstopt in de (ingeklapte) zijbalk: '⚙️ Instellingen'.
-api_key, model = sidebar_config()
-
 # --- SOM-kop: Thialf Innovatielab prominent ---
 _ASSETS = Path(__file__).resolve().parent / "assets"
 _kop = st.columns([1, 3])
@@ -693,6 +687,9 @@ with _kop[1]:
         unsafe_allow_html=True,
     )
 st.markdown("<div class='som-accent'></div>", unsafe_allow_html=True)
+
+# Verstopt instellingenblok (API-sleutel, model) — ingeklapt op de pagina.
+api_key, model = instellingen()
 
 # --- HOOFDSCHERM: de chat staat centraal ---
 scherm_demo(api_key, model)
