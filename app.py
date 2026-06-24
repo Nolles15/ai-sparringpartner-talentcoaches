@@ -565,33 +565,36 @@ def scherm_demo(api_key, model):
             st.write(bericht["content"])
             toon_bronnen(bericht.get("bronnen"))
 
-    # Nieuwe vraag: uit het invoerveld of uit een aangeklikte voorbeeldknop.
-    vraag = st.chat_input("Beschrijf je situatie of stel je vraag...")
-    vraag = vraag or st.session_state.pop("_pending", None)
+    # Invoerveld inline onder het gesprek (niet vastgepind onderaan de pagina).
+    with st.form("vraag_form", clear_on_submit=True):
+        velden = st.columns([6, 1])
+        tekst = velden[0].text_input(
+            "Jouw vraag", label_visibility="collapsed",
+            placeholder="Beschrijf je situatie of stel je vraag...")
+        verstuur = velden[1].form_submit_button("Verstuur", use_container_width=True)
+
+    vraag = tekst.strip() if (verstuur and tekst.strip()) else st.session_state.pop("_pending", None)
 
     if vraag:
         if not api_key:
             st.warning("Open **Instellingen** bovenaan en vul eerst je OpenAI API key in.")
             return
         st.session_state.messages.append({"role": "user", "content": vraag})
-        with st.chat_message("user"):
-            st.write(vraag)
-        with st.chat_message("assistant"):
-            with st.spinner("De sparringpartner zoekt in de kennisbank en denkt na..."):
-                try:
-                    stukjes = rag.zoek(api_key, vraag, k=5)
-                except Exception:
-                    stukjes = []  # bij een zoekfout vallen we terug op de vaste domeinen
-                systeemprompt = bouw_systeemprompt(stukjes)
-                antwoord, foutmelding = vraag_llm(
-                    api_key, model, st.session_state.messages, systeemprompt)
-            if foutmelding:
-                st.error(foutmelding)
-            else:
-                st.write(antwoord)
-                toon_bronnen(stukjes)
-                st.session_state.messages.append(
-                    {"role": "assistant", "content": antwoord, "bronnen": stukjes})
+        with st.spinner("De sparringpartner zoekt in de kennisbank en denkt na..."):
+            try:
+                stukjes = rag.zoek(api_key, vraag, k=5)
+            except Exception:
+                stukjes = []  # bij een zoekfout vallen we terug op de vaste domeinen
+            systeemprompt = bouw_systeemprompt(stukjes)
+            antwoord, foutmelding = vraag_llm(
+                api_key, model, st.session_state.messages, systeemprompt)
+        if foutmelding:
+            st.session_state.messages.append(
+                {"role": "assistant", "content": "⚠️ " + foutmelding, "bronnen": []})
+        else:
+            st.session_state.messages.append(
+                {"role": "assistant", "content": antwoord, "bronnen": stukjes})
+        st.rerun()
 
 
 def scherm_risicos():
