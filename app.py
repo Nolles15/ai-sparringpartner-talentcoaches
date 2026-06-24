@@ -720,19 +720,8 @@ st.markdown("<div class='som-accent'></div>", unsafe_allow_html=True)
 # Verstopt instellingenblok (API-sleutel, model) — ingeklapt op de pagina.
 api_key, model = instellingen()
 
-# --- Secundair (boven de chat): partners + projectverhaal, ingeklapt ---
+# --- Secundair (boven de chat): projectverhaal, ingeklapt ---
 # Bewust bóven de chat, zodat het invoerveld onderaan altijd bereikbaar blijft.
-st.markdown("<span class='partner-cap'>In samenwerking met</span>", unsafe_allow_html=True)
-_p = st.columns([1, 1, 6])
-with _p[0]:
-    _hanze = _ASSETS / "hanze.png"
-    if _hanze.exists():
-        st.image(str(_hanze), width=110)
-with _p[1]:
-    _fontys = _ASSETS / "fontys.jpg"
-    if _fontys.exists():
-        st.image(str(_fontys), width=110)
-
 with st.expander("ℹ️ Over dit prototype — uitdaging, aannames, risico's, next steps"):
     _t1, _t2, _t3, _t4 = st.tabs(["Uitdaging", "Aannames", "Wat kan er misgaan?", "Next Steps"])
     with _t1:
@@ -743,6 +732,8 @@ with st.expander("ℹ️ Over dit prototype — uitdaging, aannames, risico's, n
         scherm_risicos()
     with _t4:
         scherm_next()
+    st.caption("Een initiatief vanuit Innovatielab Thialf, in samenwerking met "
+               "Hanzehogeschool Groningen en Fontys.")
 
 st.markdown("<div class='som-accent' style='opacity:.5; margin:.4rem 0 1rem'></div>",
             unsafe_allow_html=True)
