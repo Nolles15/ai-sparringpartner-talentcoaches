@@ -677,12 +677,13 @@ HUISSTIJL_CSS = """
   [data-testid="stToolbar"], [data-testid="stDecoration"] {display: none;}
 
   html, body, [class*="css"] { font-family: Helvetica, Arial, sans-serif; }
-  .block-container { max-width: 960px; padding-top: 2.2rem; }
+  .block-container { max-width: 960px; padding-top: 2.6rem; }
   h1, h2, h3, h4 { color: #2E276C; font-family: 'Poppins', Helvetica, Arial, sans-serif; }
 
-  .som-title { font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 1.9rem;
-               line-height: 1.05; color: #2E276C; text-transform: uppercase; letter-spacing: .3px; }
-  .som-sub { color: #0089a8; font-weight: 600; margin-top: .2rem; }
+  .som-kicker { color: #0089a8; font-weight: 700; font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; }
+  .som-title { font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 1.8rem;
+               line-height: 1.12; color: #2E276C; text-transform: uppercase; letter-spacing: .3px; margin: .12rem 0 0; }
+  .som-sub { color: #5a5480; font-weight: 500; margin-top: .3rem; }
   .som-accent { height: 5px; background: #ED7C00; border-radius: 3px; margin: .7rem 0 1.4rem; }
 
   .stButton > button { border-radius: 10px; border: 1px solid #e6e3f0; font-weight: 600; color: #2E276C; }
@@ -704,15 +705,16 @@ st.markdown(HUISSTIJL_CSS, unsafe_allow_html=True)
 
 # --- SOM-kop: Thialf Innovatielab prominent ---
 _ASSETS = Path(__file__).resolve().parent / "assets"
-_kop = st.columns([1, 3])
+_kop = st.columns([1, 3], vertical_alignment="center")
 with _kop[0]:
     _thialf = _ASSETS / "thialf-innovatielab.png"
     if _thialf.exists():
         st.image(str(_thialf), width=150)
 with _kop[1]:
     st.markdown(
+        "<div class='som-kicker'>Sportmonitor op Maat</div>"
         f"<div class='som-title'>{PROJECT}</div>"
-        "<div class='som-sub'>Sportmonitor op Maat · sparringpartner voor talentcoaches</div>",
+        "<div class='som-sub'>Denkt met je mee over monitoring, training en herstel — de coach beslist.</div>",
         unsafe_allow_html=True,
     )
 st.markdown("<div class='som-accent'></div>", unsafe_allow_html=True)
