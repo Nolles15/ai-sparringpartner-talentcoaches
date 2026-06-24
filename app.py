@@ -593,36 +593,34 @@ def scherm_demo(api_key, model):
             st.write(bericht["content"])
             toon_bronnen(bericht.get("bronnen"))
 
-    # Invoerveld inline onder het gesprek (niet vastgepind onderaan de pagina).
-    with st.form("vraag_form", clear_on_submit=True):
-        velden = st.columns([6, 1])
-        tekst = velden[0].text_input(
-            "Jouw vraag", label_visibility="collapsed",
-            placeholder="Beschrijf je situatie of stel je vraag...")
-        verstuur = velden[1].form_submit_button("Verstuur", use_container_width=True)
-
-    vraag = tekst.strip() if (verstuur and tekst.strip()) else st.session_state.pop("_pending", None)
+    # Invoerveld onderaan de chat. st.chat_input zit vast aan de onderkant en blijft
+    # altijd bereikbaar; Streamlit regelt het scrollen van het gesprek zelf.
+    vraag = st.chat_input("Beschrijf je situatie of stel je vraag...")
+    vraag = vraag or st.session_state.pop("_pending", None)
 
     if vraag:
         if not api_key:
             st.warning("Open **Instellingen** bovenaan en vul eerst je OpenAI API key in.")
             return
         st.session_state.messages.append({"role": "user", "content": vraag})
-        with st.spinner("De sparringpartner zoekt in de kennisbank en denkt na..."):
-            try:
-                stukjes = rag.zoek(api_key, vraag, k=5)
-            except Exception:
-                stukjes = []  # bij een zoekfout vallen we terug op de vaste domeinen
-            systeemprompt = bouw_systeemprompt(stukjes)
-            antwoord, foutmelding = vraag_llm(
-                api_key, model, st.session_state.messages, systeemprompt)
-        if foutmelding:
-            st.session_state.messages.append(
-                {"role": "assistant", "content": "⚠️ " + foutmelding, "bronnen": []})
-        else:
-            st.session_state.messages.append(
-                {"role": "assistant", "content": antwoord, "bronnen": stukjes})
-        st.rerun()
+        with st.chat_message("user"):
+            st.write(vraag)
+        with st.chat_message("assistant"):
+            with st.spinner("De sparringpartner zoekt in de kennisbank en denkt na..."):
+                try:
+                    stukjes = rag.zoek(api_key, vraag, k=5)
+                except Exception:
+                    stukjes = []  # bij een zoekfout vallen we terug op de vaste domeinen
+                systeemprompt = bouw_systeemprompt(stukjes)
+                antwoord, foutmelding = vraag_llm(
+                    api_key, model, st.session_state.messages, systeemprompt)
+            if foutmelding:
+                st.error(foutmelding)
+            else:
+                st.write(antwoord)
+                toon_bronnen(stukjes)
+                st.session_state.messages.append(
+                    {"role": "assistant", "content": antwoord, "bronnen": stukjes})
 
 
 def scherm_risicos():
@@ -722,10 +720,19 @@ st.markdown("<div class='som-accent'></div>", unsafe_allow_html=True)
 # Verstopt instellingenblok (API-sleutel, model) — ingeklapt op de pagina.
 api_key, model = instellingen()
 
-# --- HOOFDSCHERM: de chat staat centraal ---
-scherm_demo(api_key, model)
+# --- Secundair (boven de chat): partners + projectverhaal, ingeklapt ---
+# Bewust bóven de chat, zodat het invoerveld onderaan altijd bereikbaar blijft.
+st.markdown("<span class='partner-cap'>In samenwerking met</span>", unsafe_allow_html=True)
+_p = st.columns([1, 1, 6])
+with _p[0]:
+    _hanze = _ASSETS / "hanze.png"
+    if _hanze.exists():
+        st.image(str(_hanze), width=110)
+with _p[1]:
+    _fontys = _ASSETS / "fontys.jpg"
+    if _fontys.exists():
+        st.image(str(_fontys), width=110)
 
-# --- Secundair: het projectverhaal (beschikbaar voor de pitch, niet prominent) ---
 with st.expander("ℹ️ Over dit prototype — uitdaging, aannames, risico's, next steps"):
     _t1, _t2, _t3, _t4 = st.tabs(["Uitdaging", "Aannames", "Wat kan er misgaan?", "Next Steps"])
     with _t1:
@@ -737,15 +744,8 @@ with st.expander("ℹ️ Over dit prototype — uitdaging, aannames, risico's, n
     with _t4:
         scherm_next()
 
-# --- Partners (subtiel onderaan) ---
-st.markdown("<div style='margin-top:1.6rem'></div>", unsafe_allow_html=True)
-st.markdown("<span class='partner-cap'>In samenwerking met</span>", unsafe_allow_html=True)
-_p = st.columns([1, 1, 6])
-with _p[0]:
-    _hanze = _ASSETS / "hanze.png"
-    if _hanze.exists():
-        st.image(str(_hanze), width=120)
-with _p[1]:
-    _fontys = _ASSETS / "fontys.jpg"
-    if _fontys.exists():
-        st.image(str(_fontys), width=120)
+st.markdown("<div class='som-accent' style='opacity:.5; margin:.4rem 0 1rem'></div>",
+            unsafe_allow_html=True)
+
+# --- HOOFDSCHERM: de chat is het laatste element; het invoerveld zit onderaan vast ---
+scherm_demo(api_key, model)
