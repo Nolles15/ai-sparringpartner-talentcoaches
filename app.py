@@ -458,9 +458,22 @@ def scherm_aannames():
         bullets(PRODUCTVORM)
 
 
+# Voorbeeldvragen om de demo te starten (mix van coaching + SportData Valley).
+STARTERS = [
+    ("Speler net ziek geweest",
+     "Mijn U17-speler was 5 dagen ziek en wil maandag weer meetrainen. Hoe pak ik dit aan?"),
+    ("Sporters vullen niet in",
+     "Een paar sporters vullen hun welzijnsvragenlijst al weken niet in. Wat kan ik doen?"),
+    ("Vragenlijst uitzetten in SDV",
+     "Hoe zet ik in SportData Valley een wekelijkse vragenlijst uit naar mijn groep?"),
+    ("Dalende herstelscore",
+     "Ik zie dat de herstelscore van een sporter twee weken daalt. Wat doe ik daarmee?"),
+]
+
+
 def sidebar_config():
-    """Zijbalk: API key (met .env-fallback), modelkeuze en gespreksbeheer."""
-    st.sidebar.header("AI-instellingen")
+    """Zijbalk (verstopt): API key (met .env-fallback), modelkeuze en gespreksbeheer."""
+    st.sidebar.header("⚙️ Instellingen")
     key_veld = st.sidebar.text_input(
         "OpenAI API key", type="password",
         help="Wordt niet opgeslagen. Laat leeg om OPENAI_API_KEY uit .env te gebruiken.",
@@ -533,28 +546,20 @@ def toon_bronnen(stukjes):
 
 
 def scherm_demo(api_key, model):
-    st.subheader("Interactieve Demo")
-    st.caption("live AI — gebaseerd op jullie eigen kennisbank")
-
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    kb = rag.index_status()
-    if not kb["bestaat"]:
-        st.info("De kennisbank is nog niet geïndexeerd. Klik links op 'Herindexeer "
-                "kennisbank' (API-key nodig). Tot die tijd gebruikt de AI de vaste "
-                "kennisdomeinen als terugval.")
-    elif not kb["actueel"]:
-        st.warning("De kennisbank is gewijzigd sinds de laatste indexering. Klik links op "
-                   "'Herindexeer kennisbank' om de nieuwste documenten mee te nemen.")
-
-    # Lege chat: voorbeeldsituaties om te starten, alleen als er nog geen gesprek loopt.
+    # Lege chat: korte intro + voorbeeldvragen om te starten.
     if not st.session_state.messages and "_pending" not in st.session_state:
-        st.caption("Stel je eigen vraag hieronder, of kies een voorbeeldsituatie om te starten:")
-        kolommen = st.columns(len(SCENARIOS))
-        for kol, (label, sc) in zip(kolommen, SCENARIOS.items()):
-            if kol.button(label, key=f"voorbeeld::{label}"):
-                st.session_state._pending = sc["question"]
+        st.markdown("#### Stel je vraag aan de sparringpartner")
+        st.caption("Een meedenkende collega op basis van sportwetenschap en SportData Valley. "
+                   "Typ je vraag hieronder, of kies een voorbeeld om te starten.")
+        if not api_key:
+            st.info("⚙️ Vul eerst je OpenAI-sleutel in via **Instellingen** (zijbalk linksboven).")
+        kolommen = st.columns(len(STARTERS))
+        for kol, (label, vraagtekst) in zip(kolommen, STARTERS):
+            if kol.button(label, key=f"start::{label}"):
+                st.session_state._pending = vraagtekst
                 st.rerun()
 
     # Gespreksgeschiedenis tonen (met bronnen onder de AI-antwoorden).
@@ -639,45 +644,80 @@ def scherm_next():
 
 HUISSTIJL_CSS = """
 <style>
-  #MainMenu, footer {visibility: hidden;}
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap');
+
+  #MainMenu {visibility: hidden;}
+  footer {visibility: hidden;}
   [data-testid="stToolbar"], [data-testid="stDecoration"] {display: none;}
-  html, body, [class*="css"] { font-family: "Trebuchet MS", "Segoe UI", sans-serif; }
-  h1, h2, h3, h4 { color: #2E276C; }
-  .hz-band { border-bottom: 3px solid #ED7C00; padding-bottom: .4rem; margin-bottom: 1rem; }
+
+  html, body, [class*="css"] { font-family: Helvetica, Arial, sans-serif; }
+  .block-container { max-width: 960px; padding-top: 2.2rem; }
+  h1, h2, h3, h4 { color: #2E276C; font-family: 'Poppins', Helvetica, Arial, sans-serif; }
+
+  .som-title { font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 1.9rem;
+               line-height: 1.05; color: #2E276C; text-transform: uppercase; letter-spacing: .3px; }
+  .som-sub { color: #0089a8; font-weight: 600; margin-top: .2rem; }
+  .som-accent { height: 5px; background: #ED7C00; border-radius: 3px; margin: .7rem 0 1.4rem; }
+
+  .stButton > button { border-radius: 10px; border: 1px solid #e6e3f0; font-weight: 600; color: #2E276C; }
+  .stButton > button:hover { border-color: #ED7C00; color: #ED7C00; }
+
+  [data-testid="stChatInput"] textarea { border-radius: 12px; }
   .stTabs [aria-selected="true"] { color: #ED7C00 !important; }
   .stTabs [data-baseweb="tab-highlight"] { background-color: #ED7C00 !important; }
-  .stButton > button { border-radius: 8px; }
+
   section[data-testid="stSidebar"] { border-right: 1px solid #e6e3f0; }
+  .partner-cap { color: #8a86a3; font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; }
 </style>
 """
 
 st.set_page_config(page_title=PROJECT, page_icon="🧭", layout="wide",
-                   initial_sidebar_state="expanded")
-
-_LOGO = Path(__file__).resolve().parent / "assets" / "sportinnovator-ai-lab-logo.png"
-if _LOGO.exists():
-    st.logo(str(_LOGO))
+                   initial_sidebar_state="collapsed")
 
 st.markdown(HUISSTIJL_CSS, unsafe_allow_html=True)
 
+# API-key en model staan bewust verstopt in de (ingeklapte) zijbalk: '⚙️ Instellingen'.
 api_key, model = sidebar_config()
 
-st.markdown(
-    f"<div class='hz-band'><h1 style='margin:0'>{PROJECT}</h1>"
-    f"<p style='color:#0089a8; margin:.2rem 0 0; font-weight:600'>"
-    f"{ORGANISATIE} · AI Impact Lab</p></div>",
-    unsafe_allow_html=True,
-)
+# --- SOM-kop: Thialf Innovatielab prominent ---
+_ASSETS = Path(__file__).resolve().parent / "assets"
+_kop = st.columns([1, 3])
+with _kop[0]:
+    _thialf = _ASSETS / "thialf-innovatielab.png"
+    if _thialf.exists():
+        st.image(str(_thialf), width=150)
+with _kop[1]:
+    st.markdown(
+        f"<div class='som-title'>{PROJECT}</div>"
+        "<div class='som-sub'>Sportmonitor op Maat · sparringpartner voor talentcoaches</div>",
+        unsafe_allow_html=True,
+    )
+st.markdown("<div class='som-accent'></div>", unsafe_allow_html=True)
 
-tab_uitdaging, tab_aannames, tab_demo, tab_risicos, tab_next = st.tabs(NAV)
+# --- HOOFDSCHERM: de chat staat centraal ---
+scherm_demo(api_key, model)
 
-with tab_uitdaging:
-    scherm_uitdaging()
-with tab_aannames:
-    scherm_aannames()
-with tab_demo:
-    scherm_demo(api_key, model)
-with tab_risicos:
-    scherm_risicos()
-with tab_next:
-    scherm_next()
+# --- Secundair: het projectverhaal (beschikbaar voor de pitch, niet prominent) ---
+with st.expander("ℹ️ Over dit prototype — uitdaging, aannames, risico's, next steps"):
+    _t1, _t2, _t3, _t4 = st.tabs(["Uitdaging", "Aannames", "Wat kan er misgaan?", "Next Steps"])
+    with _t1:
+        scherm_uitdaging()
+    with _t2:
+        scherm_aannames()
+    with _t3:
+        scherm_risicos()
+    with _t4:
+        scherm_next()
+
+# --- Partners (subtiel onderaan) ---
+st.markdown("<div style='margin-top:1.6rem'></div>", unsafe_allow_html=True)
+st.markdown("<span class='partner-cap'>In samenwerking met</span>", unsafe_allow_html=True)
+_p = st.columns([1, 1, 6])
+with _p[0]:
+    _hanze = _ASSETS / "hanze.png"
+    if _hanze.exists():
+        st.image(str(_hanze), width=120)
+with _p[1]:
+    _fontys = _ASSETS / "fontys.jpg"
+    if _fontys.exists():
+        st.image(str(_fontys), width=120)
