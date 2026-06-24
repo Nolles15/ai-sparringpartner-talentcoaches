@@ -21,7 +21,10 @@ import numpy as np
 from openai import OpenAI
 
 KENNISBANK = Path(__file__).resolve().parent / "kennisbank"
-INDEX_BESTAND = KENNISBANK / ".index.json"
+# De index wordt compact bewaard: vectoren als float32-binair (klein + snel laadbaar),
+# en de tekst/metadata apart als JSON. Beide worden meegeleverd in de repo.
+VECTOR_BESTAND = KENNISBANK / "index_vectors.npy"
+META_BESTAND = KENNISBANK / "index_meta.json"
 EMBED_MODEL = "text-embedding-3-small"
 STUKJE_TEKENS = 800  # streefgrootte van een stukje (in tekens)
 
@@ -109,11 +112,12 @@ def _embed(client: OpenAI, teksten):
     return vectoren
 
 
-def _lees_index():
-    if not INDEX_BESTAND.exists():
+def _lees_meta():
+    """Leest de metadata (hash, model, stukjes). Vectoren worden apart geladen."""
+    if not META_BESTAND.exists():
         return None
     try:
-        return json.loads(INDEX_BESTAND.read_text(encoding="utf-8"))
+        return json.loads(META_BESTAND.read_text(encoding="utf-8"))
     except Exception:
         return None
 
@@ -126,17 +130,19 @@ def bouw_index(api_key: str):
         stukjes.extend(_knip(tekst, bron))
 
     if not stukjes:
-        INDEX_BESTAND.write_text(
-            json.dumps({"hash": "", "model": EMBED_MODEL, "stukjes": [], "vectoren": []}),
+        META_BESTAND.write_text(
+            json.dumps({"hash": "", "model": EMBED_MODEL, "stukjes": []}),
             encoding="utf-8",
         )
+        np.save(VECTOR_BESTAND, np.zeros((0, 0), dtype="float32"))
         return {"documenten": 0, "stukjes": 0}
 
     client = OpenAI(api_key=api_key)
     vectoren = _embed(client, [s["tekst"] for s in stukjes])
-    INDEX_BESTAND.write_text(
-        json.dumps({"hash": _hash(documenten), "model": EMBED_MODEL,
-                    "stukjes": stukjes, "vectoren": vectoren}),
+    np.save(VECTOR_BESTAND, np.asarray(vectoren, dtype="float32"))
+    META_BESTAND.write_text(
+        json.dumps({"hash": _hash(documenten), "model": EMBED_MODEL, "stukjes": stukjes},
+                   ensure_ascii=False),
         encoding="utf-8",
     )
     return {"documenten": len(documenten), "stukjes": len(stukjes)}
@@ -144,30 +150,33 @@ def bouw_index(api_key: str):
 
 def index_status():
     """Voor de UI: bestaat er een index, hoeveel stukjes, en is hij nog actueel?"""
-    idx = _lees_index()
-    if not idx:
+    meta = _lees_meta()
+    if not meta or not VECTOR_BESTAND.exists():
         return {"bestaat": False, "stukjes": 0, "actueel": False}
     documenten = _lees_documenten()
-    actueel = idx.get("hash", "") == (_hash(documenten) if documenten else "")
-    return {"bestaat": True, "stukjes": len(idx.get("stukjes", [])), "actueel": actueel}
+    actueel = meta.get("hash", "") == (_hash(documenten) if documenten else "")
+    return {"bestaat": True, "stukjes": len(meta.get("stukjes", [])), "actueel": actueel}
 
 
 def zoek(api_key: str, vraag: str, k: int = 5):
     """Geeft de k best passende stukjes bij een vraag: [{bron, tekst, score}, ...]."""
-    idx = _lees_index()
-    if not idx or not idx.get("vectoren"):
+    meta = _lees_meta()
+    if not meta or not VECTOR_BESTAND.exists():
         return []
+    stukjes = meta.get("stukjes", [])
+    matrix = np.load(VECTOR_BESTAND).astype("float32")
+    if not stukjes or matrix.shape[0] == 0:
+        return []
+
     client = OpenAI(api_key=api_key)
     qvec = np.asarray(_embed(client, [vraag])[0], dtype="float32")
-    matrix = np.asarray(idx["vectoren"], dtype="float32")
-
     qn = qvec / (np.linalg.norm(qvec) or 1.0)
     mn = matrix / (np.linalg.norm(matrix, axis=1, keepdims=True) + 1e-9)
     scores = mn @ qn
     volgorde = np.argsort(scores)[::-1][:k]
     return [
-        {"bron": idx["stukjes"][i]["bron"],
-         "tekst": idx["stukjes"][i]["tekst"],
+        {"bron": stukjes[i]["bron"],
+         "tekst": stukjes[i]["tekst"],
          "score": round(float(scores[i]), 3)}
         for i in volgorde
     ]
