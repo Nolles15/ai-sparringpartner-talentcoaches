@@ -22,7 +22,7 @@ import rag  # onze eigen zoek-motor voor de kennisbank
 
 load_dotenv()  # leest OPENAI_API_KEY uit een .env-bestand, als dat er is
 
-ALLOWED_MODELS = ["gpt-5-nano", "gpt-5-mini"]
+ALLOWED_MODELS = ["gpt-5-mini", "gpt-5-nano"]  # mini eerst: schrijft duidelijk netter
 
 # ---------------------------------------------------------------------------
 # DUMMY-GEGEVENS (overgenomen uit de mock-up / workshopcanvas)
@@ -320,9 +320,11 @@ ANTWOORDPATROON (volg dit elke keer)
 - Begin met één meelevende of meedenkende zin. Open NOOIT met een disclaimer zoals "daar heb ik geen kennis over".
 - Geef je advies daarna in lopende zinnen, als een ervaren collega die het rustig uitlegt — geen rapport, geen protocol, geen opsomming. Vermijd bullets en sub-puntjes; alleen een heel kort rijtje als het écht losse stappen zijn.
 - Houd het kort: meestal 60-120 woorden.
-- Eindig met precies één concrete vervolgstap of vervolgvraag — niet meer dan één vraag.
+- Stel in je héle antwoord hooguit ÉÉN vraag. Som nooit een rij check-vragen op (niet "hoe lang slaapt ze, hoe vaak wordt ze wakker, is er gewichtsverlies, ..."). Wil je iets uitvragen, kies dan de belangrijkste vraag en bewaar de rest voor later.
+- Eindig met één concrete vervolgstap of vervolgvraag.
 
 TAAL (de coach is geen techneut)
+- Schrijf korte, heldere zinnen (richtlijn: hooguit ~18 woorden per zin). Plak niet veel dingen met komma's aan elkaar tot één lange dreunzin.
 - Vlotte, gewone spreektaal. Vermijd vakjargon en afkortingen (SRPE, TQR, RPE, HRV, "autonome markers"); gebruik je een term toch, leg 'm in een paar woorden uit.
 - Geef advies, geen college: één of twee bruikbare punten, geen uitputtende checklist.
 - Reageer als sparringpartner: een perspectief of overweging, geen definitief oordeel.
@@ -485,7 +487,7 @@ def instellingen():
             "OpenAI API key", type="password",
             help="Wordt niet opgeslagen. Laat leeg om OPENAI_API_KEY uit .env te gebruiken.",
         )
-        model = st.selectbox("Model", ALLOWED_MODELS, index=1)  # standaard gpt-5-mini
+        model = st.selectbox("Model", ALLOWED_MODELS, index=0)  # standaard gpt-5-mini (beste tekst)
 
         # Key uit het veld; valt terug op .env (OPENAI_API_KEY). Nooit hardcoded.
         api_key = key_veld or os.getenv("OPENAI_API_KEY", "")
