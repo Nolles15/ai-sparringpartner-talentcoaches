@@ -695,7 +695,20 @@ HUISSTIJL_CSS = """
   .stButton > button { border-radius: 10px; border: 1px solid #e6e3f0; font-weight: 600; color: #2E276C; }
   .stButton > button:hover { border-color: #ED7C00; color: #ED7C00; }
 
-  [data-testid="stChatInput"] textarea { border-radius: 12px; }
+  /* chat-invoer prominent in beeld */
+  [data-testid="stChatInput"] {
+    border: 2px solid #ED7C00 !important;
+    border-radius: 14px !important;
+    background: #ffffff !important;
+    box-shadow: 0 8px 26px rgba(46,39,108,0.16) !important;
+  }
+  [data-testid="stChatInput"] > div,
+  [data-testid="stChatInput"] [data-baseweb="base-input"],
+  [data-testid="stChatInput"] [data-baseweb="textarea"] {
+    border: none !important; background: transparent !important; box-shadow: none !important;
+  }
+  [data-testid="stChatInput"] textarea { font-size: 1.05rem !important; }
+  [data-testid="stChatInputSubmitButton"] { color: #ED7C00 !important; }
   .stTabs [aria-selected="true"] { color: #ED7C00 !important; }
   .stTabs [data-baseweb="tab-highlight"] { background-color: #ED7C00 !important; }
 
