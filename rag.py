@@ -158,6 +158,50 @@ def index_status():
     return {"bestaat": True, "stukjes": len(meta.get("stukjes", [])), "actueel": actueel}
 
 
+# --- originele bron (titel + URL) bij een kennisbankbestand --------------
+
+_URL_MAP = None
+_BRON_META = {}
+
+
+def _url_map():
+    """Laadt (eenmalig) de map van bestandsnaam -> originele URL uit de .tsv (fallback)."""
+    global _URL_MAP
+    if _URL_MAP is None:
+        _URL_MAP = {}
+        tsv = KENNISBANK / "url_filename_map.tsv"
+        if tsv.exists():
+            for regel in tsv.read_text(encoding="utf-8", errors="ignore").splitlines():
+                delen = regel.split("\t")
+                if len(delen) >= 2 and delen[0].strip().startswith("http"):
+                    _URL_MAP[Path(delen[1].strip()).name] = delen[0].strip()
+    return _URL_MAP
+
+
+def bron_info(bron: str):
+    """Geeft (titel, originele_url) voor een kennisbankbestand.
+
+    Titel uit de eerste '# '-kop, URL uit de 'Bron:'-regel in het document, met
+    de .tsv als terugval. URL kan None zijn.
+    """
+    if bron in _BRON_META:
+        return _BRON_META[bron]
+    titel, url = Path(bron).stem, None
+    pad = KENNISBANK / bron
+    if pad.exists():
+        gevonden_titel = False
+        for regel in pad.read_text(encoding="utf-8", errors="ignore").splitlines():
+            rs = regel.strip()
+            if not gevonden_titel and rs.startswith("# "):
+                titel, gevonden_titel = rs[2:].strip(), True
+            if url is None and rs.lower().startswith("bron:") and "http" in rs.lower():
+                url = rs.split(":", 1)[1].strip()
+    if url is None:
+        url = _url_map().get(Path(bron).name)
+    _BRON_META[bron] = (titel, url)
+    return _BRON_META[bron]
+
+
 def zoek(api_key: str, vraag: str, k: int = 5):
     """Geeft de k best passende stukjes bij een vraag: [{bron, tekst, score}, ...]."""
     meta = _lees_meta()

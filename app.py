@@ -566,14 +566,20 @@ def vraag_llm(api_key, model, gesprek, systeemprompt):
 
 
 def toon_bronnen(stukjes):
-    """Laat zien welke stukjes uit de kennisbank achter een antwoord zaten."""
+    """Toont een opgeschoonde, ontdubbelde lijst met links naar de originele bronnen."""
     if not stukjes:
         return
-    with st.expander(f"📚 Bronnen achter dit antwoord ({len(stukjes)})"):
-        for s in stukjes:
-            st.markdown(f"**{s['bron']}**  ·  _relevantie {s['score']}_")
-            fragment = s["tekst"][:300] + ("…" if len(s["tekst"]) > 300 else "")
-            st.caption(fragment)
+    # Ontdubbel op bestand, hoogste relevantie eerst.
+    beste = {}
+    for s in stukjes:
+        if s["bron"] not in beste or s["score"] > beste[s["bron"]]:
+            beste[s["bron"]] = s["score"]
+    bronnen = sorted(beste, key=lambda b: beste[b], reverse=True)
+
+    with st.expander(f"📚 Bronnen ({len(bronnen)})"):
+        for bron in bronnen:
+            titel, url = rag.bron_info(bron)
+            st.markdown(f"- [{titel}]({url})" if url else f"- {titel}")
 
 
 def scherm_demo(api_key, model):
