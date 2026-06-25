@@ -709,6 +709,9 @@ HUISSTIJL_CSS = """
   }
   [data-testid="stChatInput"] textarea { font-size: 1.05rem !important; }
   [data-testid="stChatInputSubmitButton"] { color: #ED7C00 !important; }
+  /* invoerbalk uitlijnen met de content i.p.v. de volle schermbreedte */
+  [data-testid="stBottom"] > div,
+  [data-testid="stBottomBlockContainer"] { max-width: 992px; margin: 0 auto; }
   .stTabs [aria-selected="true"] { color: #ED7C00 !important; }
   .stTabs [data-baseweb="tab-highlight"] { background-color: #ED7C00 !important; }
 
