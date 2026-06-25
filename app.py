@@ -701,6 +701,9 @@ HUISSTIJL_CSS = """
     border-radius: 14px !important;
     background: #ffffff !important;
     box-shadow: 0 8px 26px rgba(46,39,108,0.16) !important;
+    max-width: 960px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
   }
   [data-testid="stChatInput"] > div,
   [data-testid="stChatInput"] [data-baseweb="base-input"],
