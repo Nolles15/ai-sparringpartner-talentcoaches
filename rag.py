@@ -224,3 +224,16 @@ def zoek(api_key: str, vraag: str, k: int = 5):
          "score": round(float(scores[i]), 3)}
         for i in volgorde
     ]
+
+
+def zoek_meervoudig(api_key: str, vragen, k: int = 6):
+    """Zoekt voor meerdere zoektermen en combineert + ontdubbelt de resultaten."""
+    samen = {}
+    for v in vragen:
+        if not v:
+            continue
+        for h in zoek(api_key, v, k=5):
+            sleutel = (h["bron"], h["tekst"][:80])
+            if sleutel not in samen or h["score"] > samen[sleutel]["score"]:
+                samen[sleutel] = h
+    return sorted(samen.values(), key=lambda x: x["score"], reverse=True)[:k]

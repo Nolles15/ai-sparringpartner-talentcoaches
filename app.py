@@ -587,7 +587,40 @@ def vraag_llm(api_key, model, gesprek, systeemprompt):
     return antwoord, None
 
 
-def toon_bronnen(stukjes):
+def bedenk_zoektermen(api_key, model, gesprek):
+    """Lichte agentic stap: laat het model 1-3 zoektermen bedenken bij de laatste vraag.
+
+    Splitst samengestelde vragen op (bijv. coaching-kant + SportData Valley-kant) en
+    gebruikt de eerdere berichten om verwijzingen ('dat', 'dit') te begrijpen.
+    """
+    instructie = (
+        "Je bent een zoekhulp voor een kennisbank over talentcoaching, trainingsmonitoring "
+        "en zelfrapportage (en het systeem SportData Valley). Zet de LAATSTE vraag van de coach "
+        "om in 1 tot 3 korte zoektermen die aansluiten op vakdocumenten. Splits een "
+        "samengestelde vraag op in losse termen. Voeg ALLEEN een SportData Valley-term toe als "
+        "de vraag echt over dat systeem gaat (dashboard, grafiek, tabel, vragenlijst uitzetten). "
+        "Gebruik de eerdere berichten alleen om verwijzingen te begrijpen. Antwoord met enkel de "
+        "zoektermen, elk op een eigen regel, zonder nummering."
+    )
+    recent = [{"role": m["role"], "content": m["content"]}
+              for m in gesprek if m.get("role") in ("user", "assistant")][-4:]
+    ruw = ""
+    try:
+        client = OpenAI(api_key=api_key)
+        ruw = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "system", "content": instructie}, *recent],
+            max_completion_tokens=600,  # ruim: reasoning-modellen gebruiken een deel aan 'denken'
+        ).choices[0].message.content or ""
+    except Exception:
+        ruw = ""
+    termen = [r.strip(" -•\t0123456789.\"") for r in ruw.splitlines() if r.strip()]
+    termen = [t for t in termen if len(t) > 1][:3]
+    laatste = next((m["content"] for m in reversed(gesprek) if m.get("role") == "user"), "")
+    return termen or [laatste]
+
+
+def toon_bronnen(stukjes, zoektermen=None):
     """Toont een opgeschoonde, ontdubbelde lijst met links naar de originele bronnen."""
     if not stukjes:
         return
@@ -599,6 +632,8 @@ def toon_bronnen(stukjes):
     bronnen = sorted(beste, key=lambda b: beste[b], reverse=True)
 
     with st.expander(f"📚 Bronnen ({len(bronnen)})"):
+        if zoektermen:
+            st.caption("🔎 Zelf gezocht op: " + " · ".join(zoektermen))
         for bron in bronnen:
             titel, url = rag.bron_info(bron)
             st.markdown(f"- [{titel}]({url})" if url else f"- {titel}")
@@ -625,7 +660,7 @@ def scherm_demo(api_key, model):
     for bericht in st.session_state.messages:
         with st.chat_message(bericht["role"]):
             st.write(bericht["content"])
-            toon_bronnen(bericht.get("bronnen"))
+            toon_bronnen(bericht.get("bronnen"), bericht.get("zoektermen"))
 
     # Invoerveld onderaan de chat. st.chat_input zit vast aan de onderkant en blijft
     # altijd bereikbaar; Streamlit regelt het scrollen van het gesprek zelf.
@@ -642,9 +677,14 @@ def scherm_demo(api_key, model):
         with st.chat_message("assistant"):
             with st.spinner("De sparringpartner zoekt in de kennisbank en denkt na..."):
                 try:
-                    stukjes = rag.zoek(api_key, vraag, k=5)
+                    termen = bedenk_zoektermen(api_key, model, st.session_state.messages)
+                    stukjes = rag.zoek_meervoudig(api_key, termen, k=6)
                 except Exception:
-                    stukjes = []  # bij een zoekfout vallen we terug op de vaste domeinen
+                    termen = []
+                    try:
+                        stukjes = rag.zoek(api_key, vraag, k=5)
+                    except Exception:
+                        stukjes = []
                 systeemprompt = bouw_systeemprompt(stukjes)
                 antwoord, foutmelding = vraag_llm(
                     api_key, model, st.session_state.messages, systeemprompt)
@@ -652,9 +692,10 @@ def scherm_demo(api_key, model):
                 st.error(foutmelding)
             else:
                 st.write(antwoord)
-                toon_bronnen(stukjes)
+                toon_bronnen(stukjes, termen)
                 st.session_state.messages.append(
-                    {"role": "assistant", "content": antwoord, "bronnen": stukjes})
+                    {"role": "assistant", "content": antwoord,
+                     "bronnen": stukjes, "zoektermen": termen})
 
 
 def scherm_risicos():
